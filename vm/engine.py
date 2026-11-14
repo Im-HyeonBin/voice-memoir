@@ -184,7 +184,9 @@ def _fetch(repo: str, revision: str | None, dest: Path, fname: str) -> None:
 class VoiceEngine:
     """models_dir 아래에 모델별 가중치를 둔다(없으면 처음 쓸 때 내려받음)."""
 
-    def __init__(self, models_dir: str | Path, device: str = "cpu", model: str = DEFAULT_MODEL):
+    def __init__(self, models_dir: str | Path, device: str = "cpu", model: str = DEFAULT_MODEL,
+                 require_cal: bool = True):
+        """require_cal=False는 기준값을 만드는 도구(tools/calibrate.py)용이다. 기준값 파일이 없어도 불러오고 cal은 None."""
         self.models_dir = Path(models_dir)
         self.model = model
         self.alt = None
@@ -194,8 +196,9 @@ class VoiceEngine:
         self.vad = load_silero_vad()
         if model in MODELS:
             kind, fname, (repo, revision), self.cal = MODELS[model]
-            if self.cal is None:  # 학습한 모델: 기준값은 tools/calibrate.py가 남긴 파일에서
-                self.cal = _load_cal(self.models_dir / "alt" / model / "calibration.json")
+            cal_file = self.models_dir / "alt" / model / "calibration.json"
+            if self.cal is None and (require_cal or cal_file.exists()):  # 학습한 모델: tools/calibrate.py가 남긴 파일
+                self.cal = _load_cal(cal_file)
         else:
             kind, fname = BENCH_MODELS[model]
             repo = revision = self.cal = None  # 기준값이 없으면 비교 시험에만 쓴다

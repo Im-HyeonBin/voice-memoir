@@ -64,7 +64,8 @@ def main() -> None:
     crops, bad, spk = korean_crops()
     neg_ref = negatives(VoiceEngine(ROOT / "models", "auto", "ecapa"), crops, bad, spk)
     for name in sys.argv[1:]:
-        cal = calibrate(mapper(neg_ref, negatives(VoiceEngine(ROOT / "models", "auto", name), crops, bad, spk)))
+        eng = VoiceEngine(ROOT / "models", "auto", name, require_cal=False)  # 기준값은 지금 만든다
+        cal = calibrate(mapper(neg_ref, negatives(eng, crops, bad, spk)))
         print(name, cal, flush=True)
         folder = ROOT / "models" / "alt" / name
         if folder.exists():  # 앱·시험 도구가 이 모델을 쓸 때 읽는다

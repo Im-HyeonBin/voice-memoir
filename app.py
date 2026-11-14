@@ -16,6 +16,7 @@ from visual import CSS, MOSS, OTHER, SAMPLE_IDLE, envelope, hero_strip, strip_sv
 from vm import audio
 from vm.engine import VoiceEngine
 from vm.library import Library
+from vm.text import josa
 from vm.speakers import (apply_review, discover_speakers, search,
                          target_from_clusters, target_from_reference, with_review)
 from vm.timeline import (all_selections, build_timeline, compile_highlight, select_highlights,
@@ -70,13 +71,6 @@ def step(n: int, title: str, lede: str | None = None, state: str = "current") ->
     cls = {"done": "vm-step done", "current": "vm-step", "later": "vm-step later"}[state]
     html_block(f'<div class="{cls}"><span class="vm-step-n">{n}</span><h2>{html.escape(title)}</h2></div>'
                + (f'<p class="vm-lede">{lede}</p>' if lede else ""))
-
-
-def josa(word: str, with_final: str, without_final: str) -> str:
-    """받침이 있으면 앞의 조사, 없으면 뒤의 조사를 붙인다(예: 형과, 아버지와)."""
-    ch = word[-1] if word else ""
-    has_final = "가" <= ch <= "힣" and (ord(ch) - 0xAC00) % 28 != 0
-    return word + (with_final if has_final else without_final)
 
 
 def date_text(d, source: str) -> str:
