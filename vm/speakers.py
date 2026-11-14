@@ -398,22 +398,22 @@ def verify_clip(engine: VoiceEngine, wav: np.ndarray, clip: Clip, protos: np.nda
     return _runs(clip, edges, sims, ok), _runs(clip, edges, sims, maybe)
 
 
-def join_phrases(rec: FileRecord, clips: list[Clip], protos: np.ndarray, candidate: float,
-                 max_gap: float = 1.2) -> list[Clip]:
+def join_phrases(rec: FileRecord, clips: list[Clip], max_gap: float = 1.2) -> list[Clip]:
     """숨 쉬는 짧은 쉼 때문에 쪼개진 구간을 한 문장으로 다시 잇는다.
 
-    사이에 다른 사람으로 보이는 말소리 조각이 하나라도 있으면 잇지 않는다.
+    사이에 말소리 조각이 하나라도 있으면 잇지 않는다. 숨 쉬는 쉼에는 말소리가 없고, 1초 남짓한 틈에 든
+    말소리는 다른 사람의 짧은 맞장구일 수 있는데, 1.5초 조각에는 양쪽 목소리가 섞여 점수로는 가려내기 어렵다.
+    어려운 세트에서 이어 붙인 틈은 모두 말소리가 없는 쉼이었다(예전 규칙과 결과가 같다).
     """
     if not clips:
         return clips
     centers = rec.windows.mean(1) if len(rec.windows) else np.zeros(0)
-    scores = _sim(rec.embeddings, np.atleast_2d(protos)) if len(rec.windows) else np.zeros(0)
     out = [clips[0]]
     for c in clips[1:]:
         prev = out[-1]
         gap = c.start - prev.end
         inside = (centers > prev.end) & (centers < c.start)
-        if 0 <= gap <= max_gap and not (inside & (scores < candidate)).any():
+        if 0 <= gap <= max_gap and not inside.any():
             w = prev.duration + c.duration
             out[-1] = Clip(prev.path, prev.date, prev.date_source, prev.start, c.end,
                            (prev.score * prev.duration + c.score * c.duration) / w,
@@ -477,7 +477,10 @@ def search(records: list[FileRecord], target: Target, engine: VoiceEngine, cache
     """
     cal = engine.cal
     threshold = cal.threshold if threshold is None else threshold
-    candidate = max(cal.candidate_floor, threshold - cal.candidate_margin)
+    # 엄격한 단계도 후보는 기본 단계만큼 넉넉히 잡는다. 후보 기준을 같이 올리면 후보 구간이 달라져 2초 덩어리
+    # 경계가 옮겨 가고, 그 바람에 엄격하게 했는데 닮은 가족을 더 담는 일이 있었다(어려운 세트 삼촌 0.9→2.5초).
+    # 같은 덩어리에 기준만 높이면 담는 구간은 기본 단계의 일부가 된다.
+    candidate = max(cal.candidate_floor, min(threshold, cal.threshold) - cal.candidate_margin)
     clips: list[Clip] = []
     maybe: list[Clip] = []
     for rec in records:
@@ -491,7 +494,7 @@ def search(records: list[FileRecord], target: Target, engine: VoiceEngine, cache
             k, u = verify_clip(engine, wav, c, protos, threshold, target.rivals(rec), target.margin)
             kept += k
             unsure += u
-        kept = join_phrases(rec, sorted(kept, key=lambda k: k.start), protos, candidate)
+        kept = join_phrases(rec, sorted(kept, key=lambda k: k.start))
         clips += kept
         maybe += unsure
         maybe += find_overlaps(rec, wav, target, engine, extractor, kept + unsure, threshold, overlap_floor)
