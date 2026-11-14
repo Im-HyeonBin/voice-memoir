@@ -1,0 +1,17 @@
+[theme]
+base = "light"
+primaryColor = "#2f5d50"
+backgroundColor = "#fbfaf7"
+secondaryBackgroundColor = "#f1efe8"
+textColor = "#1f2328"
+
+[server]
+headless = true
+# SpeechBrain의 지연 로딩 모듈을 훑다가 오류 로그가 쏟아지므로 파일 감시를 끈다
+fileWatcherType = "none"
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
