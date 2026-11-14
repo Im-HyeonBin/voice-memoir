@@ -1,0 +1,210 @@
+{
+ "2016 설날 거실.m4a": [
+  {
+   "speaker": "찾을사람",
+   "start": 1.0,
+   "end": 8.0
+  },
+  {
+   "speaker": "사촌",
+   "start": 8.6,
+   "end": 23.3
+  },
+  {
+   "speaker": "찾을사람",
+   "start": 17.5,
+   "end": 24.5
+  },
+  {
+   "speaker": "엄마",
+   "start": 25.2,
+   "end": 34.0
+  },
+  {
+   "speaker": "TV",
+   "start": 0.0,
+   "end": 34
+  },
+  {
+   "speaker": "TV음악",
+   "start": 0.0,
+   "end": 34
+  }
+ ],
+ "VID_20170815_143000.mp4": [
+  {
+   "speaker": "삼촌",
+   "start": 0.5,
+   "end": 14.029
+  },
+  {
+   "speaker": "찾을사람",
+   "start": 7.0,
+   "end": 12.0
+  },
+  {
+   "speaker": "삼촌",
+   "start": 12.6,
+   "end": 22.448
+  },
+  {
+   "speaker": "찾을사람",
+   "start": 20.0,
+   "end": 27.8
+  }
+ ],
+ "2018 저녁식사.m4a": [
+  {
+   "speaker": "찾을사람",
+   "start": 0.5,
+   "end": 7.5
+  },
+  {
+   "speaker": "엄마",
+   "start": 6.0,
+   "end": 19.314
+  },
+  {
+   "speaker": "찾을사람",
+   "start": 15.0,
+   "end": 20.0
+  },
+  {
+   "speaker": "사촌",
+   "start": 15.0,
+   "end": 27.733
+  },
+  {
+   "speaker": "삼촌",
+   "start": 23.0,
+   "end": 30.0
+  }
+ ],
+ "카톡 음성메시지 2020-11-03.opus": [
+  {
+   "speaker": "찾을사람",
+   "start": 0.4,
+   "end": 7.4
+  },
+  {
+   "speaker": "찾을사람",
+   "start": 8.2,
+   "end": 16.0
+  }
+ ],
+ "2021 식당 모임.m4a": [
+  {
+   "speaker": "찾을사람",
+   "start": 1.0,
+   "end": 8.0
+  },
+  {
+   "speaker": "친구",
+   "start": 9.0,
+   "end": 17.91
+  },
+  {
+   "speaker": "웅성거림",
+   "start": 0.0,
+   "end": 22
+  },
+  {
+   "speaker": "잡음",
+   "start": 0.0,
+   "end": 22
+  }
+ ],
+ "2022 삼촌과 대화.m4a": [
+  {
+   "speaker": "찾을사람",
+   "start": 0.4,
+   "end": 2.4
+  },
+  {
+   "speaker": "삼촌",
+   "start": 2.55,
+   "end": 4.55
+  },
+  {
+   "speaker": "찾을사람",
+   "start": 4.7,
+   "end": 6.7
+  },
+  {
+   "speaker": "삼촌",
+   "start": 6.85,
+   "end": 8.85
+  },
+  {
+   "speaker": "찾을사람",
+   "start": 9.0,
+   "end": 11.0
+  },
+  {
+   "speaker": "삼촌",
+   "start": 11.15,
+   "end": 13.15
+  },
+  {
+   "speaker": "찾을사람",
+   "start": 13.3,
+   "end": 15.3
+  },
+  {
+   "speaker": "삼촌",
+   "start": 15.45,
+   "end": 17.45
+  }
+ ],
+ "통화녹음 2024-07-21.mp3": [
+  {
+   "speaker": "찾을사람",
+   "start": 0.4,
+   "end": 8.2
+  },
+  {
+   "speaker": "엄마",
+   "start": 8.6,
+   "end": 18.058
+  },
+  {
+   "speaker": "찾을사람",
+   "start": 17.0,
+   "end": 21.0
+  }
+ ],
+ "2023 뉴스 녹화.m4a": [
+  {
+   "speaker": "삼촌",
+   "start": 0.5,
+   "end": 10.675
+  },
+  {
+   "speaker": "친구",
+   "start": 8.5,
+   "end": 20.328
+  },
+  {
+   "speaker": "영어화자",
+   "start": 16.0,
+   "end": 22.576
+  },
+  {
+   "speaker": "TV음악",
+   "start": 0.0,
+   "end": 26
+  }
+ ],
+ "통화녹음 2025-03-02.mp3": [
+  {
+   "speaker": "삼촌",
+   "start": 0.4,
+   "end": 10.248
+  },
+  {
+   "speaker": "친구",
+   "start": 9.0,
+   "end": 17.544
+  }
+ ]
+}
