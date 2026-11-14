@@ -4,6 +4,7 @@
     python tools/fetch_data.py train   # 한국어 추가 학습용 Zeroth 학습 세트·방 울림/소음(약 4.1GB, GPU 서버에서)
     python tools/fetch_data.py test    # 학습에 안 쓰는 시험용 소음(DEMAND)·실제 강연(Pansori)(약 0.7GB)
     python tools/fetch_data.py tse     # 대상 화자 추출의 출발점(ESPnet TD-SpeakerBeam 공개 가중치, 약 65MB)
+    python tools/fetch_data.py ami     # 실제 녹음 검증용 AMI 회의 12개와 정답(약 0.7GB)
 
 라이선스는 README '데이터 출처'에 있다. Pansori는 비상업·변경 금지라 시험에만 쓴다.
 """
@@ -16,6 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 HF = "https://huggingface.co/datasets"
+AMI_GROUPS = ("ES2004", "IS1009", "TS3003")
 GROUPS = {
     "demo": [
         (f"{HF}/Bingsu/zeroth-korean/resolve/main/data/test-00000-of-00001-a41b955a631e582e.parquet",
@@ -34,6 +36,14 @@ GROUPS = {
           for e in ("PCAFETER", "PRESTO", "DLIVING", "SPSQUARE", "TBUS")],
         ("https://openslr.elda.org/resources/58/pansori-tedxkr-corpus-1.0.tar.gz",
          "data/pansori/pansori-tedxkr-corpus-1.0.tar.gz"),
+    ],
+    # 실제 녹음 검증: AMI 회의 말뭉치(CC BY 4.0) 시험 분할의 세 모임. 같은 네 사람이 다른 날 네 번 회의한 것을
+    # 방 가운데 마이크 하나(Array1-01)로 녹음했다. 누가 언제 말했는지는 pyannote AMI-diarization-setup의 RTTM(단어 정렬 기준).
+    "ami": [
+        *[(f"https://groups.inf.ed.ac.uk/ami/AMICorpusMirror/amicorpus/{m}/audio/{m}.Array1-01.wav",
+           f"data/ami/{m[:-1]}/{m}.wav") for g in AMI_GROUPS for m in (g + s for s in "abcd")],
+        *[("https://raw.githubusercontent.com/pyannote/AMI-diarization-setup/main/only_words/rttms/test/"
+           f"{m}.rttm", f"data/ami/{m[:-1]}/{m}.rttm") for g in AMI_GROUPS for m in (g + s for s in "abcd")],
     ],
     "tse": [
         ("https://huggingface.co/espnet/Wangyou_Zhang_librimix_train_enh_tse_td_speakerbeam_raw/resolve/main/"

@@ -33,6 +33,7 @@ PIECE_SEC = 2.0           # 확인 덩어리 길이. 3초보다 말 주고받는
 TOP_MEMBERS = 24          # 군집 대표 조각 수
 ENROLL_SEC = 10.0         # 대상 화자 추출에 줄 찾을 사람 목소리 길이
 OVERLAP_CONTEXT = 4.0     # 대상 화자 추출에 넣는 앞뒤 포함 길이(초)
+SAMPLE_CONTEXT = 8.0      # 목소리마다 들어 볼 구간을 대표 조각 앞뒤 이만큼 안에서 고른다
 
 
 def _normalize(v: np.ndarray) -> np.ndarray:
@@ -208,12 +209,19 @@ def discover_speakers(records: list[FileRecord], engine: VoiceEngine, cache: Aud
 
 def _sample_clip(c: SpeakerCluster, records: list[FileRecord], engine: VoiceEngine,
                  cache: AudioCache, max_len: float = 6.0) -> tuple[str, float, float]:
-    """들어 볼 대표 구간: 대표 조각이 들어 있는 파일에서 가장 확실한 구간을 고른다."""
+    """들어 볼 대표 구간: 대표 조각 앞뒤 SAMPLE_CONTEXT초 안에서 가장 확실한 구간을 고른다.
+
+    예전에는 대표 조각이 든 파일 전체를 찾았는데, 몇 시간짜리 녹음에서는 목소리마다 전체 찾기를 한 번씩 하게 되어
+    목소리 나누기가 수십 분 걸렸다(AMI 회의 2시간 분량). 대표 조각 둘레만 보면 녹음 길이와 상관없이 빠르다.
+    """
     target = Target(c.centroid, c.narrow, "cluster")
     by_path = {r.path: r for r in records}
     best = None
-    for path in {m[0] for m in c.members[:6]}:
-        for clip in find_clips([by_path[path]], target, engine, cache):
+    for path, s, e in c.members[:6]:
+        rec = by_path[path]
+        near = (rec.windows[:, 1] > s - SAMPLE_CONTEXT) & (rec.windows[:, 0] < e + SAMPLE_CONTEXT)
+        local = replace(rec, windows=rec.windows[near], embeddings=rec.embeddings[near])
+        for clip in find_clips([local], target, engine, cache):
             if best is None or (clip.score, clip.duration) > (best.score, best.duration):
                 best = clip
     if best is None:

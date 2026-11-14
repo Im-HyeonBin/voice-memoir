@@ -152,3 +152,29 @@ def test_apply_review_removes_decided_items_and_sorts(engine, scene):
     res = SearchResult([], [clip(10, 12, score=0.5), clip(14, 16, score=0.6), clip(18, 20, score=0.4)])
     out = apply_review(res, [rec], accepted=[], rejected=[("a.wav", 11.5, 12.5)])
     assert [(m.start, m.score) for m in out.maybe] == [(14, 0.6), (18, 0.4)]  # 답한 것은 빼고 닮은 순서로
+
+
+def test_discover_sample_cost_does_not_grow_with_recording_length(engine):
+    """목소리마다 들어 볼 구간을 고를 때 녹음 전체가 아니라 대표 조각 둘레만 본다(몇 시간짜리 녹음에서 수십 분 걸리던 문제)."""
+    from vm.audio import AudioCache  # noqa: F401  (형식 확인용)
+    from vm.speakers import discover_speakers
+
+    def embedded_rows(minutes):
+        wav = compose(*[(("me", "other")[i % 2], 5.0) for i in range(minutes * 12)])
+        rec = record(engine, "long.wav", wav)
+        rows = []
+        real = engine.embed
+        engine.embed = lambda w, win: rows.append(len(win)) or real(w, win)
+        try:
+            clusters = discover_speakers([rec], engine, FakeCache({"long.wav": wav}))
+        finally:
+            engine.embed = real
+        return clusters, sum(rows)
+
+    short_clusters, short_rows = embedded_rows(2)
+    long_clusters, long_rows = embedded_rows(20)
+    assert len(long_clusters) >= 2
+    for c in long_clusters:  # 들어 볼 구간은 대표 조각 둘레에서 고른다
+        p, s, e = c.sample
+        assert any(abs(s - ms) <= 8 + 6 for _, ms, _ in c.members[:6])
+    assert long_rows <= short_rows * 2  # 녹음이 10배 길어도 확인할 조각 수는 거의 그대로
