@@ -1,0 +1,1 @@
+ecapa_ko Calibration(levels=(0.391, 0.44, 0.489, 0.539, 0.589), cluster_distance=0.511, link=0.633, same_person=0.539, candidate_margin=0.151, candidate_floor=0.227, maybe_band=0.098, rival_margin=0.049, same_person_sure=0.539)
