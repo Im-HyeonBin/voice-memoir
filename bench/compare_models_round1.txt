@@ -1,0 +1,37 @@
+ecapa: 기준 0.45 → 0.450, 군집 0.45 → 0.450
+voxblink2_samresnet34_ft: 기준 0.45 → 0.578, 군집 0.45 → 0.578
+voxblink2_samresnet34: 기준 0.45 → 0.530, 군집 0.45 → 0.530
+campplus_cnen200k: 기준 0.45 → 0.491, 군집 0.45 → 0.491
+
+### 참고 방식 — 찾은 비율(말소리) / 잘못 담은 시간 (기준은 ECAPA 눈금으로 환산)
+모델                              기준 |             데모 |         어려운 세트
+ecapa                         0.40 |  100%   0.0초 |   61%   1.1초
+ecapa                         0.45 |  100%   0.0초 |   54%   0.6초
+ecapa                         0.50 |  100%   0.0초 |   49%   0.6초
+voxblink2_samresnet34_ft      0.40 |  100%   0.0초 |   63%   0.7초
+voxblink2_samresnet34_ft      0.45 |  100%   0.0초 |   63%   0.7초
+voxblink2_samresnet34_ft      0.50 |  100%   0.0초 |   56%   0.7초
+voxblink2_samresnet34         0.40 |  100%   0.0초 |   60%   1.2초
+voxblink2_samresnet34         0.45 |  100%   0.0초 |   59%   2.3초
+voxblink2_samresnet34         0.50 |  100%   0.0초 |   56%   2.1초
+campplus_cnen200k             0.40 |  100%   0.0초 |   68%   3.6초
+campplus_cnen200k             0.45 |  100%   0.0초 |   67%   2.1초
+campplus_cnen200k             0.50 |  100%   0.0초 |   56%   0.9초
+
+
+### 자동 방식 — 찾은 비율(말소리) / 잘못 담은 시간 (기준은 ECAPA 눈금으로 환산)
+모델                              기준 |             데모 |         어려운 세트
+ecapa                         0.40 |  100%   0.0초 |   69%   1.1초
+ecapa                         0.45 |  100%   0.0초 |   62%   1.2초
+ecapa                         0.50 |  100%   0.0초 |   58%   0.6초
+voxblink2_samresnet34_ft      0.40 |  100%   0.0초 |   64%   0.7초
+voxblink2_samresnet34_ft      0.45 |  100%   0.0초 |   66%   0.7초
+voxblink2_samresnet34_ft      0.50 |  100%   0.0초 |   66%   0.7초
+voxblink2_samresnet34         0.40 |  100%   0.0초 |   59%   1.2초
+voxblink2_samresnet34         0.45 |  100%   0.0초 |   57%   1.8초
+voxblink2_samresnet34         0.50 |  100%   0.0초 |   59%   3.0초
+campplus_cnen200k             0.40 |  100%   0.0초 |   74%   3.0초
+campplus_cnen200k             0.45 |  100%   0.0초 |   75%   4.1초
+campplus_cnen200k             0.50 |  100%   0.0초 |   71%   2.8초
+
+찾을 사람이 나뉜 목소리 수(어려운 세트): ecapa 2개, voxblink2_samresnet34_ft 2개, voxblink2_samresnet34 2개, campplus_cnen200k 2개

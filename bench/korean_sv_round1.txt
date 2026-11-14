@@ -1,0 +1,12 @@
+한국인 10명, 문장 457개 (같은 사람 쌍 12159개)
+
+모델                               문장 전체     2초 조각     2초+나쁜 음질     처리 시간
+ecapa                             0.6%      3.2%        10.4%      186s
+wespeaker_vox_resnet34            0.2%      1.8%         9.9%      103s
+wespeaker_vox_resnet293           0.1%      1.4%        14.0%      671s
+wespeaker_vox_campplus            0.3%      2.1%         9.3%       38s
+wespeaker_cnceleb_resnet34        0.6%      2.3%        16.6%      101s
+campplus_zh200k                   0.6%      1.9%        15.2%       38s
+campplus_cnen200k                 0.5%      1.4%         8.6%       38s
+voxblink2_samresnet34             0.3%      0.8%         8.4%      341s
+voxblink2_samresnet34_ft          0.1%      1.1%         7.4%      103s
