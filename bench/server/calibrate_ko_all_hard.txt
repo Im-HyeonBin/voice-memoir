@@ -1,0 +1,1 @@
+voxblink2_samresnet34_ko_all_hard Calibration(levels=(0.511, 0.561, 0.613, 0.664, 0.719), cluster_distance=0.387, link=0.834, same_person=0.664, candidate_margin=0.153, candidate_floor=0.332, maybe_band=0.102, rival_margin=0.052, same_person_sure=0.664)

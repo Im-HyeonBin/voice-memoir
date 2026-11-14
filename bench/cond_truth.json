@@ -1,0 +1,2162 @@
+{
+ "사람01": {
+  "1 조용한 방.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.66
+   },
+   {
+    "speaker": "A",
+    "start": 8.374,
+    "end": 16.53
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 17.136,
+    "end": 24.001
+   },
+   {
+    "speaker": "B",
+    "start": 24.603,
+    "end": 39.394
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 40.27,
+    "end": 50.46
+   }
+  ],
+  "2 카페.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.158
+   },
+   {
+    "speaker": "A",
+    "start": 7.621,
+    "end": 19.963
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 20.272,
+    "end": 31.201
+   },
+   {
+    "speaker": "B",
+    "start": 31.991,
+    "end": 41.273
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 42.034,
+    "end": 50.153
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 50.911
+   }
+  ],
+  "3 식당.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 9.064
+   },
+   {
+    "speaker": "A",
+    "start": 9.936,
+    "end": 18.443
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 19.159,
+    "end": 35.551
+   },
+   {
+    "speaker": "B",
+    "start": 36.219,
+    "end": 48.084
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 48.928,
+    "end": 56.691
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 57.232
+   }
+  ],
+  "4 거실 TV.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.591
+   },
+   {
+    "speaker": "A",
+    "start": 8.133,
+    "end": 26.785
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 27.426,
+    "end": 37.601
+   },
+   {
+    "speaker": "B",
+    "start": 38.436,
+    "end": 51.382
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 52.257,
+    "end": 62.98
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 63.489
+   },
+   {
+    "speaker": "TV",
+    "start": 0.0,
+    "end": 63.489
+   }
+  ],
+  "5 멀리서.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 13.959
+   },
+   {
+    "speaker": "A",
+    "start": 14.54,
+    "end": 23.719
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 24.48,
+    "end": 36.345
+   },
+   {
+    "speaker": "B",
+    "start": 37.175,
+    "end": 51.943
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 52.42,
+    "end": 61.715
+   }
+  ],
+  "6 멀리서 광장.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 11.021
+   },
+   {
+    "speaker": "A",
+    "start": 11.832,
+    "end": 19.464
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 20.316,
+    "end": 37.463
+   },
+   {
+    "speaker": "B",
+    "start": 37.959,
+    "end": 49.012
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 49.759,
+    "end": 58.416
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 58.766
+   }
+  ],
+  "7 함정 카페.m4a": [
+   {
+    "speaker": "A",
+    "start": 0.5,
+    "end": 12.001
+   },
+   {
+    "speaker": "B",
+    "start": 12.781,
+    "end": 20.165
+   },
+   {
+    "speaker": "A",
+    "start": 20.631,
+    "end": 32.535
+   },
+   {
+    "speaker": "B",
+    "start": 33.145,
+    "end": 43.803
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 44.671
+   }
+  ]
+ },
+ "사람02": {
+  "1 조용한 방.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 12.986
+   },
+   {
+    "speaker": "A",
+    "start": 13.827,
+    "end": 23.882
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 24.611,
+    "end": 36.515
+   },
+   {
+    "speaker": "B",
+    "start": 37.079,
+    "end": 45.422
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 45.741,
+    "end": 56.697
+   }
+  ],
+  "2 카페.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 12.001
+   },
+   {
+    "speaker": "A",
+    "start": 12.519,
+    "end": 21.389
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 21.851,
+    "end": 31.03
+   },
+   {
+    "speaker": "B",
+    "start": 31.514,
+    "end": 43.228
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 43.575,
+    "end": 53.665
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 54.563
+   }
+  ],
+  "3 식당.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 15.094
+   },
+   {
+    "speaker": "A",
+    "start": 15.408,
+    "end": 30.199
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 31.051,
+    "end": 40.271
+   },
+   {
+    "speaker": "B",
+    "start": 40.858,
+    "end": 48.838
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 49.311,
+    "end": 56.916
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 57.565
+   }
+  ],
+  "4 거실 TV.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 10.954
+   },
+   {
+    "speaker": "A",
+    "start": 11.715,
+    "end": 27.714
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 28.571,
+    "end": 36.728
+   },
+   {
+    "speaker": "B",
+    "start": 37.511,
+    "end": 46.011
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 46.397,
+    "end": 57.042
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 57.905
+   },
+   {
+    "speaker": "TV",
+    "start": 0.0,
+    "end": 57.905
+   }
+  ],
+  "5 멀리서.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 11.156
+   },
+   {
+    "speaker": "A",
+    "start": 11.649,
+    "end": 18.824
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 19.403,
+    "end": 31.745
+   },
+   {
+    "speaker": "B",
+    "start": 32.303,
+    "end": 45.066
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 45.788,
+    "end": 60.358
+   }
+  ],
+  "6 멀리서 광장.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 14.046
+   },
+   {
+    "speaker": "A",
+    "start": 14.565,
+    "end": 24.132
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 24.524,
+    "end": 40.837
+   },
+   {
+    "speaker": "B",
+    "start": 41.638,
+    "end": 50.79
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 51.56,
+    "end": 66.352
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 67.155
+   }
+  ],
+  "7 함정 카페.m4a": [
+   {
+    "speaker": "A",
+    "start": 0.5,
+    "end": 9.347
+   },
+   {
+    "speaker": "B",
+    "start": 9.798,
+    "end": 21.222
+   },
+   {
+    "speaker": "A",
+    "start": 21.91,
+    "end": 31.988
+   },
+   {
+    "speaker": "B",
+    "start": 32.632,
+    "end": 40.166
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 41.053
+   }
+  ]
+ },
+ "사람03": {
+  "1 조용한 방.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 10.554
+   },
+   {
+    "speaker": "A",
+    "start": 11.074,
+    "end": 22.122
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 22.533,
+    "end": 30.591
+   },
+   {
+    "speaker": "B",
+    "start": 31.286,
+    "end": 38.18
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 38.676,
+    "end": 48.243
+   }
+  ],
+  "2 카페.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 11.367
+   },
+   {
+    "speaker": "A",
+    "start": 12.11,
+    "end": 19.317
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 19.757,
+    "end": 28.604
+   },
+   {
+    "speaker": "B",
+    "start": 29.35,
+    "end": 36.462
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 36.961,
+    "end": 46.505
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 47.09
+   }
+  ],
+  "3 식당.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 9.782
+   },
+   {
+    "speaker": "A",
+    "start": 10.217,
+    "end": 22.189
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 22.724,
+    "end": 35.67
+   },
+   {
+    "speaker": "B",
+    "start": 36.001,
+    "end": 44.971
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 45.512,
+    "end": 56.169
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 56.647
+   }
+  ],
+  "4 거실 TV.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 16.499
+   },
+   {
+    "speaker": "A",
+    "start": 17.292,
+    "end": 25.917
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 26.529,
+    "end": 35.399
+   },
+   {
+    "speaker": "B",
+    "start": 35.992,
+    "end": 42.337
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 42.725,
+    "end": 50.968
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 51.774
+   },
+   {
+    "speaker": "TV",
+    "start": 0.0,
+    "end": 51.774
+   }
+  ],
+  "5 멀리서.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 15.484
+   },
+   {
+    "speaker": "A",
+    "start": 16.31,
+    "end": 30.75
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 31.104,
+    "end": 46.458
+   },
+   {
+    "speaker": "B",
+    "start": 46.837,
+    "end": 56.21
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 56.612,
+    "end": 65.044
+   }
+  ],
+  "6 멀리서 광장.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 11.553
+   },
+   {
+    "speaker": "A",
+    "start": 12.087,
+    "end": 19.79
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 20.526,
+    "end": 32.392
+   },
+   {
+    "speaker": "B",
+    "start": 33.154,
+    "end": 38.649
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 38.999,
+    "end": 46.174
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 46.795
+   }
+  ],
+  "7 함정 카페.m4a": [
+   {
+    "speaker": "A",
+    "start": 0.5,
+    "end": 9.0
+   },
+   {
+    "speaker": "B",
+    "start": 9.484,
+    "end": 19.309
+   },
+   {
+    "speaker": "A",
+    "start": 19.78,
+    "end": 26.273
+   },
+   {
+    "speaker": "B",
+    "start": 26.58,
+    "end": 38.042
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 38.662
+   }
+  ]
+ },
+ "사람04": {
+  "1 조용한 방.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 8.479
+   },
+   {
+    "speaker": "A",
+    "start": 9.344,
+    "end": 16.318
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 16.836,
+    "end": 24.648
+   },
+   {
+    "speaker": "B",
+    "start": 25.49,
+    "end": 32.649
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 33.525,
+    "end": 39.348
+   }
+  ],
+  "2 카페.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 8.683
+   },
+   {
+    "speaker": "A",
+    "start": 9.07,
+    "end": 17.256
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 17.905,
+    "end": 25.866
+   },
+   {
+    "speaker": "B",
+    "start": 26.516,
+    "end": 39.573
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 40.03,
+    "end": 48.335
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 49.008
+   }
+  ],
+  "3 식당.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.045
+   },
+   {
+    "speaker": "A",
+    "start": 7.605,
+    "end": 16.735
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 17.417,
+    "end": 24.34
+   },
+   {
+    "speaker": "B",
+    "start": 24.812,
+    "end": 33.784
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 34.339,
+    "end": 46.053
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 46.644
+   }
+  ],
+  "4 거실 TV.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 11.063
+   },
+   {
+    "speaker": "A",
+    "start": 11.673,
+    "end": 19.378
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 19.897,
+    "end": 27.651
+   },
+   {
+    "speaker": "B",
+    "start": 28.521,
+    "end": 44.562
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 45.018,
+    "end": 57.877
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 58.66
+   },
+   {
+    "speaker": "TV",
+    "start": 0.0,
+    "end": 58.66
+   }
+  ],
+  "5 멀리서.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.327
+   },
+   {
+    "speaker": "A",
+    "start": 7.955,
+    "end": 18.512
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 19.075,
+    "end": 25.916
+   },
+   {
+    "speaker": "B",
+    "start": 26.334,
+    "end": 37.082
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 37.949,
+    "end": 51.512
+   }
+  ],
+  "6 멀리서 광장.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 9.0
+   },
+   {
+    "speaker": "A",
+    "start": 9.745,
+    "end": 15.288
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 15.726,
+    "end": 22.933
+   },
+   {
+    "speaker": "B",
+    "start": 23.415,
+    "end": 32.967
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 33.658,
+    "end": 46.446
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 46.942
+   }
+  ],
+  "7 함정 카페.m4a": [
+   {
+    "speaker": "A",
+    "start": 0.5,
+    "end": 10.325
+   },
+   {
+    "speaker": "B",
+    "start": 10.929,
+    "end": 17.766
+   },
+   {
+    "speaker": "A",
+    "start": 18.227,
+    "end": 26.759
+   },
+   {
+    "speaker": "B",
+    "start": 27.25,
+    "end": 37.495
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 38.123
+   }
+  ]
+ },
+ "사람05": {
+  "1 조용한 방.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 8.301
+   },
+   {
+    "speaker": "A",
+    "start": 8.87,
+    "end": 18.422
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 18.933,
+    "end": 24.425
+   },
+   {
+    "speaker": "B",
+    "start": 25.252,
+    "end": 34.133
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 34.645,
+    "end": 43.327
+   }
+  ],
+  "2 카페.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.255
+   },
+   {
+    "speaker": "A",
+    "start": 7.739,
+    "end": 17.281
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 17.715,
+    "end": 25.397
+   },
+   {
+    "speaker": "B",
+    "start": 25.745,
+    "end": 32.755
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 33.351,
+    "end": 40.627
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 41.479
+   }
+  ],
+  "3 식당.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.027
+   },
+   {
+    "speaker": "A",
+    "start": 7.588,
+    "end": 24.518
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 24.917,
+    "end": 31.48
+   },
+   {
+    "speaker": "B",
+    "start": 31.889,
+    "end": 43.72
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 44.289,
+    "end": 54.114
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 54.447
+   }
+  ],
+  "4 거실 TV.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.614
+   },
+   {
+    "speaker": "A",
+    "start": 8.211,
+    "end": 15.496
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 16.151,
+    "end": 24.336
+   },
+   {
+    "speaker": "B",
+    "start": 24.946,
+    "end": 38.4
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 39.2,
+    "end": 46.626
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 46.987
+   },
+   {
+    "speaker": "TV",
+    "start": 0.0,
+    "end": 46.987
+   }
+  ],
+  "5 멀리서.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 12.833
+   },
+   {
+    "speaker": "A",
+    "start": 13.532,
+    "end": 21.486
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 21.875,
+    "end": 27.159
+   },
+   {
+    "speaker": "B",
+    "start": 27.624,
+    "end": 36.833
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 37.374,
+    "end": 47.931
+   }
+  ],
+  "6 멀리서 광장.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.957
+   },
+   {
+    "speaker": "A",
+    "start": 8.831,
+    "end": 16.479
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 17.013,
+    "end": 26.55
+   },
+   {
+    "speaker": "B",
+    "start": 27.416,
+    "end": 40.726
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 41.139,
+    "end": 47.703
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 48.075
+   }
+  ],
+  "7 함정 카페.m4a": [
+   {
+    "speaker": "A",
+    "start": 0.5,
+    "end": 11.071
+   },
+   {
+    "speaker": "B",
+    "start": 11.462,
+    "end": 18.345
+   },
+   {
+    "speaker": "A",
+    "start": 18.734,
+    "end": 34.775
+   },
+   {
+    "speaker": "B",
+    "start": 35.471,
+    "end": 44.456
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 44.88
+   }
+  ]
+ },
+ "사람06": {
+  "1 조용한 방.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.175
+   },
+   {
+    "speaker": "A",
+    "start": 7.649,
+    "end": 16.039
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 16.662,
+    "end": 25.634
+   },
+   {
+    "speaker": "B",
+    "start": 25.986,
+    "end": 35.538
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 36.301,
+    "end": 43.138
+   }
+  ],
+  "2 카페.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 8.344
+   },
+   {
+    "speaker": "A",
+    "start": 8.769,
+    "end": 20.601
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 21.042,
+    "end": 32.788
+   },
+   {
+    "speaker": "B",
+    "start": 33.11,
+    "end": 40.076
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 40.912,
+    "end": 48.866
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 49.313
+   }
+  ],
+  "3 식당.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 14.26
+   },
+   {
+    "speaker": "A",
+    "start": 15.007,
+    "end": 21.578
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 22.034,
+    "end": 29.194
+   },
+   {
+    "speaker": "B",
+    "start": 29.7,
+    "end": 36.92
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 37.69,
+    "end": 44.99
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 45.698
+   }
+  ],
+  "4 거실 TV.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 16.487
+   },
+   {
+    "speaker": "A",
+    "start": 17.056,
+    "end": 23.94
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 24.254,
+    "end": 31.556
+   },
+   {
+    "speaker": "B",
+    "start": 32.03,
+    "end": 43.555
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 44.127,
+    "end": 53.679
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 54.37
+   },
+   {
+    "speaker": "TV",
+    "start": 0.0,
+    "end": 54.37
+   }
+  ],
+  "5 멀리서.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 9.517
+   },
+   {
+    "speaker": "A",
+    "start": 10.392,
+    "end": 17.755
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 18.263,
+    "end": 31.066
+   },
+   {
+    "speaker": "B",
+    "start": 31.384,
+    "end": 44.821
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 45.372,
+    "end": 56.121
+   }
+  ],
+  "6 멀리서 광장.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 9.076
+   },
+   {
+    "speaker": "A",
+    "start": 9.907,
+    "end": 23.217
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 24.063,
+    "end": 37.146
+   },
+   {
+    "speaker": "B",
+    "start": 37.668,
+    "end": 45.414
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 46.207,
+    "end": 59.265
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 59.708
+   }
+  ],
+  "7 함정 카페.m4a": [
+   {
+    "speaker": "A",
+    "start": 0.5,
+    "end": 12.484
+   },
+   {
+    "speaker": "B",
+    "start": 13.144,
+    "end": 20.718
+   },
+   {
+    "speaker": "A",
+    "start": 21.416,
+    "end": 30.838
+   },
+   {
+    "speaker": "B",
+    "start": 31.609,
+    "end": 41.46
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 42.002
+   }
+  ]
+ },
+ "사람07": {
+  "1 조용한 방.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.782
+   },
+   {
+    "speaker": "A",
+    "start": 8.223,
+    "end": 19.748
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 20.142,
+    "end": 27.152
+   },
+   {
+    "speaker": "B",
+    "start": 27.757,
+    "end": 37.215
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 37.677,
+    "end": 46.559
+   }
+  ],
+  "2 카페.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.136
+   },
+   {
+    "speaker": "A",
+    "start": 7.807,
+    "end": 15.026
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 15.889,
+    "end": 24.162
+   },
+   {
+    "speaker": "B",
+    "start": 24.64,
+    "end": 34.448
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 35.17,
+    "end": 41.998
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 42.577
+   }
+  ],
+  "3 식당.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 12.484
+   },
+   {
+    "speaker": "A",
+    "start": 13.2,
+    "end": 20.946
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 21.702,
+    "end": 30.911
+   },
+   {
+    "speaker": "B",
+    "start": 31.57,
+    "end": 38.97
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 39.312,
+    "end": 46.957
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 47.574
+   }
+  ],
+  "4 거실 TV.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.206
+   },
+   {
+    "speaker": "A",
+    "start": 7.894,
+    "end": 17.186
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 18.081,
+    "end": 23.685
+   },
+   {
+    "speaker": "B",
+    "start": 24.325,
+    "end": 34.696
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 35.486,
+    "end": 43.17
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 43.98
+   },
+   {
+    "speaker": "TV",
+    "start": 0.0,
+    "end": 43.98
+   }
+  ],
+  "5 멀리서.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 12.494
+   },
+   {
+    "speaker": "A",
+    "start": 12.922,
+    "end": 20.723
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 21.389,
+    "end": 27.467
+   },
+   {
+    "speaker": "B",
+    "start": 27.996,
+    "end": 37.071
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 37.616,
+    "end": 49.447
+   }
+  ],
+  "6 멀리서 광장.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 13.81
+   },
+   {
+    "speaker": "A",
+    "start": 14.333,
+    "end": 21.81
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 22.266,
+    "end": 29.63
+   },
+   {
+    "speaker": "B",
+    "start": 30.125,
+    "end": 36.53
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 37.144,
+    "end": 48.056
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 48.487
+   }
+  ],
+  "7 함정 카페.m4a": [
+   {
+    "speaker": "A",
+    "start": 0.5,
+    "end": 10.723
+   },
+   {
+    "speaker": "B",
+    "start": 11.15,
+    "end": 25.339
+   },
+   {
+    "speaker": "A",
+    "start": 25.742,
+    "end": 41.668
+   },
+   {
+    "speaker": "B",
+    "start": 42.497,
+    "end": 51.304
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 51.882
+   }
+  ]
+ },
+ "사람08": {
+  "1 조용한 방.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 8.074
+   },
+   {
+    "speaker": "A",
+    "start": 8.499,
+    "end": 19.97
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 20.283,
+    "end": 27.778
+   },
+   {
+    "speaker": "B",
+    "start": 28.64,
+    "end": 37.321
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 37.955,
+    "end": 51.363
+   }
+  ],
+  "2 카페.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 8.246
+   },
+   {
+    "speaker": "A",
+    "start": 9.038,
+    "end": 20.83
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 21.265,
+    "end": 30.817
+   },
+   {
+    "speaker": "B",
+    "start": 31.186,
+    "end": 38.542
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 39.347,
+    "end": 47.148
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 47.574
+   }
+  ],
+  "3 식당.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 9.792
+   },
+   {
+    "speaker": "A",
+    "start": 10.458,
+    "end": 19.568
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 20.047,
+    "end": 31.715
+   },
+   {
+    "speaker": "B",
+    "start": 32.387,
+    "end": 40.272
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 40.935,
+    "end": 51.158
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 51.855
+   }
+  ],
+  "4 거실 TV.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.456
+   },
+   {
+    "speaker": "A",
+    "start": 8.222,
+    "end": 21.831
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 22.624,
+    "end": 30.853
+   },
+   {
+    "speaker": "B",
+    "start": 31.278,
+    "end": 37.981
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 38.614,
+    "end": 45.012
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 45.832
+   },
+   {
+    "speaker": "TV",
+    "start": 0.0,
+    "end": 45.832
+   }
+  ],
+  "5 멀리서.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 10.352
+   },
+   {
+    "speaker": "A",
+    "start": 11.043,
+    "end": 20.433
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 20.93,
+    "end": 32.455
+   },
+   {
+    "speaker": "B",
+    "start": 32.815,
+    "end": 46.09
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 46.666,
+    "end": 54.142
+   }
+  ],
+  "6 멀리서 광장.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 6.415
+   },
+   {
+    "speaker": "A",
+    "start": 6.972,
+    "end": 18.298
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 19.149,
+    "end": 26.562
+   },
+   {
+    "speaker": "B",
+    "start": 27.431,
+    "end": 34.22
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 34.844,
+    "end": 42.064
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 42.925
+   }
+  ],
+  "7 함정 카페.m4a": [
+   {
+    "speaker": "A",
+    "start": 0.5,
+    "end": 6.62
+   },
+   {
+    "speaker": "B",
+    "start": 7.023,
+    "end": 12.415
+   },
+   {
+    "speaker": "A",
+    "start": 12.728,
+    "end": 22.536
+   },
+   {
+    "speaker": "B",
+    "start": 23.293,
+    "end": 31.806
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 32.676
+   }
+  ]
+ },
+ "사람09": {
+  "1 조용한 방.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.343
+   },
+   {
+    "speaker": "A",
+    "start": 7.797,
+    "end": 13.613
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 14.342,
+    "end": 24.785
+   },
+   {
+    "speaker": "B",
+    "start": 25.545,
+    "end": 32.636
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 33.444,
+    "end": 42.621
+   }
+  ],
+  "2 카페.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 8.697
+   },
+   {
+    "speaker": "A",
+    "start": 9.096,
+    "end": 14.39
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 14.946,
+    "end": 24.596
+   },
+   {
+    "speaker": "B",
+    "start": 25.28,
+    "end": 40.264
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 40.911,
+    "end": 51.771
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 52.639
+   }
+  ],
+  "3 식당.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 12.298
+   },
+   {
+    "speaker": "A",
+    "start": 12.713,
+    "end": 22.208
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 23.037,
+    "end": 29.801
+   },
+   {
+    "speaker": "B",
+    "start": 30.414,
+    "end": 38.978
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 39.829,
+    "end": 46.856
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 47.437
+   }
+  ],
+  "4 거실 TV.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 13.814
+   },
+   {
+    "speaker": "A",
+    "start": 14.626,
+    "end": 21.875
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 22.772,
+    "end": 30.888
+   },
+   {
+    "speaker": "B",
+    "start": 31.292,
+    "end": 38.537
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 39.101,
+    "end": 45.222
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 45.845
+   },
+   {
+    "speaker": "TV",
+    "start": 0.0,
+    "end": 45.845
+   }
+  ],
+  "5 멀리서.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 15.137
+   },
+   {
+    "speaker": "A",
+    "start": 16.015,
+    "end": 24.697
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 25.168,
+    "end": 34.886
+   },
+   {
+    "speaker": "B",
+    "start": 35.415,
+    "end": 46.198
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 46.588,
+    "end": 53.988
+   }
+  ],
+  "6 멀리서 광장.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 9.306
+   },
+   {
+    "speaker": "A",
+    "start": 9.94,
+    "end": 16.269
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 17.102,
+    "end": 25.774
+   },
+   {
+    "speaker": "B",
+    "start": 26.532,
+    "end": 39.377
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 40.041,
+    "end": 53.651
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 54.344
+   }
+  ],
+  "7 함정 카페.m4a": [
+   {
+    "speaker": "A",
+    "start": 0.5,
+    "end": 6.716
+   },
+   {
+    "speaker": "B",
+    "start": 7.595,
+    "end": 14.617
+   },
+   {
+    "speaker": "A",
+    "start": 14.999,
+    "end": 20.39
+   },
+   {
+    "speaker": "B",
+    "start": 21.261,
+    "end": 29.7
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 30.327
+   }
+  ]
+ },
+ "사람10": {
+  "1 조용한 방.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 6.83
+   },
+   {
+    "speaker": "A",
+    "start": 7.511,
+    "end": 21.416
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 22.15,
+    "end": 27.998
+   },
+   {
+    "speaker": "B",
+    "start": 28.878,
+    "end": 41.22
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 41.803,
+    "end": 48.415
+   }
+  ],
+  "2 카페.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 13.775
+   },
+   {
+    "speaker": "A",
+    "start": 14.662,
+    "end": 22.694
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 23.15,
+    "end": 28.901
+   },
+   {
+    "speaker": "B",
+    "start": 29.638,
+    "end": 40.178
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 40.832,
+    "end": 49.406
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 50.188
+   }
+  ],
+  "3 식당.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.748
+   },
+   {
+    "speaker": "A",
+    "start": 8.58,
+    "end": 20.446
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 20.789,
+    "end": 27.577
+   },
+   {
+    "speaker": "B",
+    "start": 27.997,
+    "end": 36.504
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 36.827,
+    "end": 42.643
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 43.127
+   }
+  ],
+  "4 거실 TV.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 7.203
+   },
+   {
+    "speaker": "A",
+    "start": 7.721,
+    "end": 13.803
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 14.257,
+    "end": 20.473
+   },
+   {
+    "speaker": "B",
+    "start": 21.217,
+    "end": 30.396
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 30.791,
+    "end": 36.824
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 37.538
+   },
+   {
+    "speaker": "TV",
+    "start": 0.0,
+    "end": 37.538
+   }
+  ],
+  "5 멀리서.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 9.826
+   },
+   {
+    "speaker": "A",
+    "start": 10.231,
+    "end": 21.735
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 22.074,
+    "end": 30.863
+   },
+   {
+    "speaker": "B",
+    "start": 31.636,
+    "end": 40.564
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 41.276,
+    "end": 47.904
+   }
+  ],
+  "6 멀리서 광장.m4a": [
+   {
+    "speaker": "찾을사람",
+    "start": 0.5,
+    "end": 5.891
+   },
+   {
+    "speaker": "A",
+    "start": 6.545,
+    "end": 21.529
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 22.196,
+    "end": 33.023
+   },
+   {
+    "speaker": "B",
+    "start": 33.444,
+    "end": 44.089
+   },
+   {
+    "speaker": "찾을사람",
+    "start": 44.6,
+    "end": 52.167
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 52.475
+   }
+  ],
+  "7 함정 카페.m4a": [
+   {
+    "speaker": "A",
+    "start": 0.5,
+    "end": 14.757
+   },
+   {
+    "speaker": "B",
+    "start": 15.264,
+    "end": 24.483
+   },
+   {
+    "speaker": "A",
+    "start": 24.916,
+    "end": 33.355
+   },
+   {
+    "speaker": "B",
+    "start": 33.941,
+    "end": 50.255
+   },
+   {
+    "speaker": "소음",
+    "start": 0.0,
+    "end": 50.878
+   }
+  ]
+ }
+}

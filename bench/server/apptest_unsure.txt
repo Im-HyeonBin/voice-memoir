@@ -1,0 +1,14 @@
+2026-10-20 00:54:23.127 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-10-20 00:54:25.430 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+모델 voxblink2_samresnet34_ko_l3 애매한 목소리 [3]
+상자 보임: True | 예외: []
+버튼: ['same_3']
+같은 사람으로 확인 후 same = {3} | 남은 애매한 목소리 상자: False

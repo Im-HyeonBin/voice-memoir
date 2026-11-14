@@ -1,0 +1,9 @@
+Zeroth: 10명, 문장 457개
+Pansori: 40명, 문장 581개
+
+같은 사람·다른 사람을 헷갈린 비율(EER, 낮을수록 좋음). 깨끗한 2초 조각 ↔ 조건을 입힌 2초 조각
+모델                           세트                 깨끗함        카페 5dB        식당 0dB        거실 5dB        버스 5dB           멀리서    멀리서+광장 5dB  처리 시간
+voxblink2_samresnet34_ko_l3  Zeroth            0.9%          1.9%          8.5%          1.4%          1.0%          1.5%          2.5%    107s
+voxblink2_samresnet34_ko_l3  Pansori           6.4%          7.9%         15.7%          7.1%          6.7%          7.5%          9.2%    107s
+voxblink2_samresnet34_ko_all_hard Zeroth            0.9%          1.7%          8.1%          1.3%          1.0%          1.4%          2.2%    107s
+voxblink2_samresnet34_ko_all_hard Pansori           6.9%          8.1%         15.1%          7.6%          7.0%          7.7%          9.3%    107s

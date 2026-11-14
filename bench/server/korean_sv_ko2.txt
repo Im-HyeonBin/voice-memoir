@@ -1,0 +1,5 @@
+한국인 10명, 문장 457개 (같은 사람 쌍 12159개)
+
+모델                               문장 전체     2초 조각     2초+나쁜 음질     처리 시간
+voxblink2_samresnet34_ko_l3       0.2%      0.9%         2.9%       35s
+voxblink2_samresnet34_ko_all_hard      0.1%      0.9%         2.6%       35s
