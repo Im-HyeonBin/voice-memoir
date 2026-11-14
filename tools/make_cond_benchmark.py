@@ -52,7 +52,7 @@ def conversation(turns: list[tuple[str, np.ndarray]], rng, far: bool) -> tuple[n
     """번갈아 말하기. far면 사람마다 다른 실측 방 울림을 입힌다."""
     rirs = C.rir_paths("test")
     room = {who: C.load_rir(rirs[int(rng.integers(len(rirs)))]) for who in {w for w, _ in turns}}
-    pieces, spans, t = [], [], 0.5
+    spans, t = [], 0.5
     out = [np.zeros(int(0.5 * SR), np.float32)]
     for who, x in turns:
         x = C.level(x, 0.05 * 10 ** (rng.uniform(-3, 3) / 20))

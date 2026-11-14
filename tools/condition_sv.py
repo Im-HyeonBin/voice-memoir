@@ -89,7 +89,7 @@ def main() -> None:
     for k, (u, s) in sets.items():
         print(f"{k}: {len(set(s.tolist()))}명, 문장 {len(u)}개")
     names = ["깨끗함"] + [c[0] for c in CONDS]
-    print(f"\n같은 사람·다른 사람을 헷갈린 비율(EER, 낮을수록 좋음). 깨끗한 2초 조각 ↔ 조건을 입힌 2초 조각"
+    print("\n같은 사람·다른 사람을 헷갈린 비율(EER, 낮을수록 좋음). 깨끗한 2초 조각 ↔ 조건을 입힌 2초 조각"
           + (" · 울림 걷어내기 적용" if args.wpe else ""))
     print(f"{'모델':28s} {'세트':8s} " + " ".join(f"{n:>13s}" for n in names) + "  처리 시간")
     for m in args.models:

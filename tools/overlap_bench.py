@@ -61,7 +61,7 @@ def build(seed: int = 0, env: str = "clean"):
     for s in speakers:
         mine = list(by[s])
         rng.shuffle(mine)
-        ref, n = [], 0
+        ref = []
         while sum(len(x) for x in ref) < 7 * SR:
             ref.append(mine.pop())
         enroll = norm(np.concatenate(ref))

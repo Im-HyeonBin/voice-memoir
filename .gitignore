@@ -22,3 +22,7 @@ bench/hard/
 # 생성기로 다시 만들 수 있는 시험 세트 소리
 bench/cond/
 bench/overlap/
+
+# 포트폴리오 설명서(Word)는 따로 전달
+docs/*.docx
+docs/*.pdf
