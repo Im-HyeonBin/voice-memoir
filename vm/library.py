@@ -8,8 +8,12 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import sys
+import types
 import zipfile
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures.process import BrokenProcessPool
+from contextlib import contextmanager
 from dataclasses import dataclass
 from multiprocessing import get_context
 from datetime import date
@@ -65,6 +69,23 @@ def _init_worker(models_dir: str, cache_dir: str, devices: list[str], counter, m
 def _analyze_in_worker(path: str) -> str:
     _WORKER["lib"].analyze(path)
     return path
+
+
+@contextmanager
+def _workers_skip_main():
+    """작업자 프로세스를 띄우는 동안 __main__을 빈 모듈로 바꿔 둔다.
+
+    spawn 방식 작업자는 시작할 때 __main__ 파일을 다시 실행한다. Streamlit은 화면 파일(app.py)을 __main__으로
+    돌리기 때문에, 그대로 두면 작업자마다 화면 코드가 처음부터 돌다 죽고 스캔이 실패한다. 작업자가 쓰는 함수는
+    이 모듈에 있어서 __main__이 없어도 된다.
+    """
+    main = sys.modules.get("__main__")
+    sys.modules["__main__"] = types.ModuleType("__main__")
+    try:
+        yield
+    finally:
+        if main is not None:
+            sys.modules["__main__"] = main
 
 
 def default_devices(model: str) -> list[str]:
@@ -187,18 +208,24 @@ class Library:
             for var in ("OMP_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
                 os.environ[var] = "1"
             ctx = get_context("spawn")
-            with ProcessPoolExecutor(min(len(devices), len(todo)), mp_context=ctx,
-                                     initializer=_init_worker,
-                                     initargs=(str(self.engine.models_dir), str(self.cache_dir), devices,
-                                               ctx.Value("i", 0), self.engine.model)) as ex:
-                for fut in as_completed([ex.submit(_analyze_in_worker, str(f)) for f in todo]):
-                    done += 1
-                    if progress:
-                        progress(done, len(files), Path(fut.result()).name)
-        else:
-            for f in todo:
-                self.analyze(f)
-                done += 1
-                if progress:
-                    progress(done, len(files), f.name)
+            try:
+                with ProcessPoolExecutor(min(len(devices), len(todo)), mp_context=ctx,
+                                         initializer=_init_worker,
+                                         initargs=(str(self.engine.models_dir), str(self.cache_dir), devices,
+                                                   ctx.Value("i", 0), self.engine.model)) as ex:
+                    with _workers_skip_main():  # 작업자는 submit할 때 뜬다
+                        futures = [ex.submit(_analyze_in_worker, str(f)) for f in todo]
+                    for fut in as_completed(futures):
+                        name = Path(fut.result()).name
+                        done += 1
+                        if progress:
+                            progress(done, len(files), name)
+            except BrokenProcessPool:
+                pass  # 작업자가 죽으면 남은 파일은 아래에서 이 프로세스로 이어서 계산한다
+            todo = [f for f in todo if not self.is_cached(f)]
+        for f in todo:
+            self.analyze(f)
+            done += 1
+            if progress:
+                progress(done, len(files), f.name)
         return [self.analyze(f) for f in files]  # 모두 캐시에 있으므로 바로 읽힌다
