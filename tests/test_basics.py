@@ -5,6 +5,7 @@ import json
 import os
 from dataclasses import asdict
 from datetime import date
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -103,6 +104,18 @@ def test_built_in_calibrations_are_ordered(name):
     c = MODELS[name][3]
     assert list(c.levels) == sorted(c.levels)  # 넉넉하게 → 엄격하게
     assert c.candidate_floor < c.threshold
+    assert c.same_person <= c.same_person_sure
+
+
+TRAINED_CALS = sorted((Path(__file__).resolve().parents[1] / "models" / "alt").glob("*/calibration.json"))
+
+
+@pytest.mark.skipif(not TRAINED_CALS, reason="학습한 모델의 기준값 파일이 없어요")
+@pytest.mark.parametrize("path", TRAINED_CALS, ids=lambda p: p.parent.name)
+def test_trained_calibration_files_are_valid(path):
+    c = _load_cal(path)
+    assert list(c.levels) == sorted(c.levels) and len(c.levels) == 5
+    assert c.candidate_floor <= c.threshold - c.candidate_margin < c.threshold  # 후보는 담는 기준보다 넉넉하게
     assert c.same_person <= c.same_person_sure
 
 
