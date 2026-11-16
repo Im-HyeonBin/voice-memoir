@@ -72,21 +72,27 @@ def main() -> None:
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--groups", nargs="+", default=list(AMI_GROUPS))
     ap.add_argument("--device", default="auto")
+    ap.add_argument("--all-levels", action="store_true", help="다섯 단계 모두 재서 찾은 비율과 다른 사람 비율을 함께 보인다")
     args = ap.parse_args()
     eng = VoiceEngine(ROOT / "models", args.device, args.model)
     tot = defaultdict(lambda: defaultdict(float))
     rows = []
+    n_clusters = {}
+    by_level = defaultdict(lambda: defaultdict(float))
     for g in args.groups:
         folder = ROOT / "data" / "ami" / g
         records = Library(eng, ROOT / ".cache").scan(folder)
         cache = audio.AudioCache(max_files=4)
         clusters = discover_speakers(records, eng, cache)
+        n_clusters[g] = len(clusters)
         meetings = sorted(records, key=lambda r: r.path)
         first, rest = meetings[0], meetings[1:]
         for who in speakers_of(Path(first.path).with_suffix(".rttm")):
             truth = {r.path: read_labels(Path(r.path).with_suffix(".rttm"), speaker=who) for r in rest}
             ref = reference_clip(cache.get(first.path), solo_spans(Path(first.path).with_suffix(".rttm"), who), audio.SR)
             targets = {"참고": target_from_reference(eng, ref, clusters)}
+            # 참고 + 확인: '같은 사람인가요?'로 물은 목소리에 사람이 맞게 답했다고 가정
+            unsure = targets["참고"].info["unsure"]
             # 자동 발견: 그 사람 말이 절반 넘게 든 목소리를 고른다(모든 회의 기준)
             truth_all = {r.path: read_labels(Path(r.path).with_suffix(".rttm"), speaker=who) for r in meetings}
             chosen = []
@@ -94,9 +100,18 @@ def main() -> None:
                 hit = sum(max(0.0, min(e, te) - max(s, ts)) for p, s, e in c.members for ts, te in truth_all[p])
                 if hit > 0.5 * sum(e - s for _, s, e in c.members):
                     chosen.append(c)
+            same = {c.index for c in chosen if c.index in unsure}
+            targets["참고+확인"] = target_from_reference(eng, ref, clusters, same=same)
+            asked = len(unsure)
             if chosen:
                 targets["자동"] = target_from_clusters(chosen, clusters, eng, cache)
             for mode, tgt in targets.items():
+                for lv, thr in enumerate(eng.cal.levels if args.all_levels else []):
+                    res = search(records, tgt, eng, cache, thr)
+                    for r in rest:
+                        sc = score(truth[r.path], [(c.start, c.end) for c in res.clips if c.path == r.path], r.duration)
+                        for k, v in sc.items():
+                            by_level[(mode, lv)][k] += v
                 res = search(records, tgt, eng, cache)
                 row = defaultdict(float)
                 for r in rest:
@@ -106,22 +121,32 @@ def main() -> None:
                 for k, v in row.items():
                     tot[mode][k] += v
                 tot[mode]["people"] += 1
-                rows.append((g, who, mode, row["target"], row["found"], row["wrong"], len(chosen)))
+                rows.append((g, who, mode, row["target"], row["found"], row["wrong"], asked if mode == "참고+확인" else len(chosen)))
             print(f"{g} {who} 끝", file=sys.stderr, flush=True)
 
     hours = sum(r[3] for r in rows if r[2] == "참고") / 3600
-    print(f"모델 {eng.model}, AMI 회의 {len(args.groups)}개 모임 × 4회, 찾을 사람 {len(rows) // 2}명 안팎. "
+    print(f"모델 {eng.model}, AMI 회의 {len(args.groups)}개 모임 × 4회, 찾을 사람 {len(rows) // 3}명. "
           f"채점은 각 모임의 둘째~넷째 회의(찾을 사람 말소리 합 {hours:.1f}시간), 경계 앞뒤 0.25초 제외\n")
+    print(f"목소리 묶음 수: {', '.join(f'{g} {n}개' for g, n in n_clusters.items())}")
     print(f"{'모임':8s} {'사람':8s} {'방식':4s} {'말한 시간':>9s} {'찾은 비율':>8s} {'잘못 담은 시간':>12s} {'담은 것 중 다른 사람':>14s}")
     for g, who, mode, t, f, w, n in rows:
         share = f"{w / (f + w):.1%}" if f + w else "-"
         print(f"{g:8s} {who:8s} {mode:4s} {t / 60:7.1f}분 {f / t if t else 0:8.0%} {w:10.1f}초 {share:>14s}"
-              + (f"  (목소리 {n}개 고름)" if mode == "자동" else ""))
+              + (f"  (목소리 {n}개 고름)" if mode == "자동" else f"  (물은 목소리 {n}개)" if mode == "참고+확인" else ""))
     print()
     for mode, d in tot.items():
         share = d["wrong"] / (d["found"] + d["wrong"]) if d["found"] + d["wrong"] else 0
         print(f"합계 {mode}: {int(d['people'])}명, 찾은 비율 {d['found'] / d['target']:.0%}, "
               f"잘못 담은 시간 {d['wrong'] / 60:.1f}분, 담은 것 중 다른 사람 {share:.1%}")
+    if by_level:
+        print("\n단계별(0 넉넉하게 … 4 엄격하게): 찾은 비율 / 담은 것 중 다른 사람")
+        for mode in tot:
+            cells = []
+            for lv, thr in enumerate(eng.cal.levels):
+                d = by_level[(mode, lv)]
+                share = d["wrong"] / (d["found"] + d["wrong"]) if d["found"] + d["wrong"] else 0
+                cells.append(f"{thr:.3f} {d['found'] / d['target']:.0%}/{share:.1%}")
+            print(f"  {mode:6s} " + "  ".join(cells))
 
 
 if __name__ == "__main__":
