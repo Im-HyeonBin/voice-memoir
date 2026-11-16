@@ -39,5 +39,6 @@
 | DEMAND (Zenodo 1227121) | 시험에만 | CC BY 4.0 |
 | Pansori-TEDxKR (OpenSLR 58) | 시험에만, 바꾸거나 다시 배포하지 않음 | CC BY-NC-ND 4.0 |
 | AMI Meeting Corpus 시험 분할 세 모임(ES2004, IS1009, TS3003), 정답은 pyannote AMI-diarization-setup의 RTTM | 실제 녹음 검증에만 | CC BY 4.0 (RTTM은 MIT) |
+| MSDWild (X-LANCE, 상해교통대), 한국어 영상만 | 한국어 실제 녹음 검증에만, 저장소에 넣지 않고 합계만 실음 | 연구용 동의서(상업 이용·재배포 금지, 인용) |
 | LibriSpeech 샘플, VOiCES 샘플 | 데모·어려운 세트의 다른 사람 목소리 | CC BY 4.0 |
 | 찾을 사람 목소리 | 데모·어려운 세트 | 만든 사람 본인 녹음, 저장소에 넣지 않음 |

@@ -27,3 +27,5 @@ bench/overlap/
 docs/*.docx
 docs/*.pdf
 /data_ami_check/
+/data_msdwild/
+bench/msdwild_lang.json
