@@ -79,6 +79,7 @@ def date_text(d, source: str) -> str:
 
 
 S = st.session_state
+SHOWN = 9  # 처음에 펼쳐 보여 줄 목소리 카드 수
 S.setdefault("records", None)
 S.setdefault("clusters", None)
 S.setdefault("target", None)
@@ -215,22 +216,32 @@ with tab_auto:
                 f".st-key-voice-{i} .vm-chip.moss {{ background: var(--card); }}"
                 for i in chosen) + "</style>")
         picked = []
-        for i, c in enumerate(clusters):
-            if i % 3 == 0:
-                cols = st.columns(3)
-            with cols[i % 3], st.container(key=f"voice-{c.index}"):
-                p, s0, e0 = c.sample
-                sample = S.cache.slice(p, s0, e0)
-                chip = '<div><span class="vm-chip moss">통화 녹음 포함</span></div>' if c.phone_linked else ""
-                on = c.index in chosen
-                html_block(
-                    f'<div class="vm-voice-name">목소리 {c.index}</div>'
-                    f'<div class="vm-voice-meta">파일 {len(c.files)}개에서 약 {mmss(c.seconds)}</div>{chip}'
-                    + strip_svg(envelope(sample, 40), [(0, 1)], height=34,
-                                on=MOSS if on else SAMPLE_IDLE, label=f"목소리 {c.index} 들어 보기 파형"))
-                st.audio(audio.wav_bytes(sample), format="audio/wav")
-                if st.checkbox(f"목소리 {c.index} 선택", key=f"pick_{c.index}"):
-                    picked.append(c)
+
+        def voice_cards(group: list) -> None:
+            for i, c in enumerate(group):
+                if i % 3 == 0:
+                    cols = st.columns(3)
+                with cols[i % 3], st.container(key=f"voice-{c.index}"):
+                    p, s0, e0 = c.sample
+                    sample = S.cache.slice(p, s0, e0)
+                    chip = '<div><span class="vm-chip moss">통화 녹음 포함</span></div>' if c.phone_linked else ""
+                    on = c.index in chosen
+                    html_block(
+                        f'<div class="vm-voice-name">목소리 {c.index}</div>'
+                        f'<div class="vm-voice-meta">파일 {len(c.files)}개에서 약 {mmss(c.seconds)}</div>{chip}'
+                        + strip_svg(envelope(sample, 40), [(0, 1)], height=34,
+                                    on=MOSS if on else SAMPLE_IDLE, label=f"목소리 {c.index} 들어 보기 파형"))
+                    st.audio(audio.wav_bytes(sample), format="audio/wav")
+                    if st.checkbox(f"목소리 {c.index} 선택", key=f"pick_{c.index}"):
+                        picked.append(c)
+
+        # 긴 녹음에서는 한 사람이 여러 목소리로 나뉘어 목록이 길어진다. 많이 말한 목소리부터 SHOWN개만 펼쳐 두고,
+        # 나머지는 접어 둔다(한 사람의 짧은 조각은 카드 하나만 고르면 앱이 따라가 함께 찾는다).
+        voice_cards(clusters[:SHOWN])
+        if len(clusters) > SHOWN:
+            rest = clusters[SHOWN:]
+            with st.expander(f"짧게 나온 목소리 {len(rest)}개 더 보기", expanded=any(c.index in chosen for c in rest)):
+                voice_cards(rest)
         if st.button("고른 목소리로 찾기", type="primary", disabled=not picked):
             S.target, S.results = target_from_clusters(picked, S.clusters, engine, S.cache), {}
             S.accepted, S.rejected, S.overlap_regions = [], [], set()
