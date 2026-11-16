@@ -35,6 +35,7 @@ ENROLL_SEC = 10.0         # 대상 화자 추출에 줄 찾을 사람 목소리 
 OVERLAP_CONTEXT = 4.0     # 대상 화자 추출에 넣는 앞뒤 포함 길이(초)
 MERGE_LINKAGE = "average"   # 쪼개진 같은 사람 묶음 합치기 방법
 MERGE_OFFSET = 0.0          # 합치는 기준 = same_person_sure + 이 값
+REF_SEED_TOP = True         # 참고 녹음: 가장 닮은 목소리가 같은 사람 기준을 넘으면 거기서도 따라간다
 SURE_CHAIN = True           # 참고 녹음: '확실히 같은 목소리'와 확실히 같은 목소리도 같은 사람으로
 SAMPLE_CONTEXT = 8.0      # 목소리마다 들어 볼 구간을 대표 조각 앞뒤 이만큼 안에서 고른다
 
@@ -356,6 +357,14 @@ def target_from_reference(engine: VoiceEngine, wav: np.ndarray,
         if SURE_CHAIN and cal.chain:  # 확실히 같은 목소리와 확실히 같을 만큼 닮은 목소리도 같은 사람으로 본다(쪼개진 묶음을 따라간다)
             cents = {c.index: c.centroid for c in clusters}
             frontier = set(sure)
+            if REF_SEED_TOP:
+                # 참고 녹음과 가장 닮은 목소리가 '같은 사람' 기준(same_person)을 넘으면 그 목소리에서도 따라간다.
+                # 짧은 참고 녹음은 다른 날 녹음과 '확실히 같은' 만큼 닮지 않아 따라가기가 시작되지 않았다.
+                # 실제 회의 41% → 62%(다른 사람 1.2% → 1.4%), 합성 세트·닮은 삼촌·한국어 영상은 그대로였다.
+                top = max(sims, key=sims.get)
+                if sims[top] >= cal.same_person:
+                    frontier.add(top)
+                    sure.add(top)
             while frontier:
                 ref = np.stack([cents[j] for j in frontier])
                 frontier = set()

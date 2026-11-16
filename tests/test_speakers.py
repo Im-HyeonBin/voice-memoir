@@ -275,3 +275,31 @@ def test_follow_starts_from_longest_pick_only(engine):
     t = target_from_clusters([main, mixed], [main, frag, mixed, other], engine)
     assert t.info["followed"] == [2]
     assert any(np.allclose(r, other.centroid) for r in t.rivals_wide)  # 다른 사람은 경쟁자로 남는다
+
+
+def test_reference_follows_from_most_similar_voice(engine):
+    """참고 녹음과 가장 닮은 목소리가 '같은 사람' 기준을 넘으면(확실한 기준은 못 넘어도) 거기서 따라간다."""
+    from dataclasses import replace as dc_replace
+
+    import vm.speakers as sp
+    from vm.speakers import SpeakerCluster, _normalize, target_from_reference
+
+    def cluster(i, v, sec):
+        v = _normalize(np.array(v, np.float32))
+        return SpeakerCluster(i, v, v, sec, ["x.wav"], [("x.wav", 0.0, 1.5)])
+
+    top = cluster(1, [0.53, 0.85, 0.1], 40.0)    # 참고와 같은 사람 기준(0.50)은 넘고 확실한 기준(0.56)은 못 넘음
+    frag = cluster(2, [0.0, 1.0, 0.3], 20.0)     # top과 확실히 같음
+    other = cluster(3, [0.0, -1.0, 0.1], 30.0)   # 다른 사람
+    engine.cal = dc_replace(engine.cal, chain=True)
+    ref = compose(("me", 4))
+    old = sp.REF_SEED_TOP
+    try:
+        sp.REF_SEED_TOP = False
+        before = target_from_reference(engine, ref, [top, frag, other], augment=False)
+        sp.REF_SEED_TOP = True
+        after = target_from_reference(engine, ref, [top, frag, other], augment=False)
+    finally:
+        sp.REF_SEED_TOP = old
+    assert len(before.rivals_wide) == 3
+    assert len(after.rivals_wide) == 1 and np.allclose(after.rivals_wide[0], other.centroid)

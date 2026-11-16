@@ -72,8 +72,13 @@ def main() -> None:
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--groups", nargs="+", default=list(AMI_GROUPS))
     ap.add_argument("--device", default="auto")
+    ap.add_argument("--ref-sec", type=float, default=10.0, help="참고 녹음 길이(초)")
+    ap.add_argument("--data", default=str(ROOT / "data" / "ami"), help="모임별 폴더(wav·rttm)가 있는 곳")
+    ap.add_argument("--only-ref", action="store_true", help="참고 녹음 방식만 잰다(실험용)")
     ap.add_argument("--all-levels", action="store_true", help="다섯 단계 모두 재서 찾은 비율과 다른 사람 비율을 함께 보인다")
     args = ap.parse_args()
+    global REF_SEC
+    REF_SEC = args.ref_sec
     eng = VoiceEngine(ROOT / "models", args.device, args.model)
     tot = defaultdict(lambda: defaultdict(float))
     rows = []
@@ -81,7 +86,7 @@ def main() -> None:
     followed = {}
     by_level = defaultdict(lambda: defaultdict(float))
     for g in args.groups:
-        folder = ROOT / "data" / "ami" / g
+        folder = Path(args.data).resolve() / g
         records = Library(eng, ROOT / ".cache").scan(folder)
         cache = audio.AudioCache(max_files=4)
         clusters = discover_speakers(records, eng, cache)
@@ -101,6 +106,8 @@ def main() -> None:
                 hit = sum(max(0.0, min(e, te) - max(s, ts)) for p, s, e in c.members for ts, te in truth_all[p])
                 if hit > 0.5 * sum(e - s for _, s, e in c.members):
                     chosen.append(c)
+            if args.only_ref:
+                chosen = []
             same = {c.index for c in chosen if c.index in unsure}
             targets["참고+확인"] = target_from_reference(eng, ref, clusters, same=same)
             asked = len(unsure)

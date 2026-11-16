@@ -248,7 +248,7 @@ with tab_auto:
             S.ref_wav, S.same, S.not_same = None, set(), set()
 
 with tab_ref:
-    html_block('<p class="vm-text">찾는 사람이 5초 넘게 말하는 녹음을 올려 주세요. 다른 사람 목소리가 '
+    html_block('<p class="vm-text">찾는 사람이 말하는 녹음을 올려 주세요. 5초면 되지만, 30초쯤 되면 멀리서 녹음한 목소리까지 더 많이 찾아요. 다른 사람 목소리가 '
                '조금 섞여 있어도 가장 많이 말한 사람을 기준으로 삼아요.</p>')
     up = st.file_uploader("참고 녹음", type=[e.strip(".") for e in sorted(audio.MEDIA_EXTS)],
                           label_visibility="collapsed")
