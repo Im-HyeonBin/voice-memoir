@@ -270,13 +270,36 @@ def _join_enroll(pieces: list[np.ndarray], cut: bool = True) -> np.ndarray | Non
     return np.concatenate(out).astype(np.float32) if total >= 2 * SR else None
 
 
+def follow_same_person(seeds: set[int], clusters: list[SpeakerCluster], sure: float) -> set[int]:
+    """seeds 목소리와 '확실히 같은 사람'(sure)만큼 닮은 목소리를 따라가, 새로 찾은 목소리 번호를 돌려준다.
+
+    따라간 목소리와 확실히 같은 목소리도 다시 따라간다. 멀리서 녹음한 긴 녹음처럼 한 사람이 여러 묶음으로
+    쪼개졌을 때 사람이 묶음을 일일이 고르지 않아도 되게 한다.
+    """
+    cents = {c.index: c.centroid for c in clusters}
+    found, frontier = set(seeds) & set(cents), set(seeds) & set(cents)
+    while frontier:
+        ref = np.stack([cents[j] for j in frontier])
+        frontier = {i for i, v in cents.items() if i not in found and float((ref @ v).max()) >= sure}
+        found |= frontier
+    return found - set(seeds)
+
+
 def target_from_clusters(selected: list[SpeakerCluster], clusters: list[SpeakerCluster] | None = None,
                          engine: VoiceEngine | None = None, cache: AudioCache | None = None,
-                         augment: bool = True) -> Target:
+                         augment: bool = True, follow: bool | None = None) -> Target:
     """'같은 사람'으로 고른 목소리 군집(하나 이상)으로 기준 지문을 만든다.
 
-    clusters를 주면 고르지 않은 목소리들을 경쟁자로 둔다.
+    clusters를 주면 고르지 않은 목소리들을 경쟁자로 둔다. follow(기본은 모델 기준값 chain)면 고른 목소리 중
+    가장 길게 말한 목소리와 확실히 같은 목소리를 따라가 기준 지문에 더하고 경쟁자에서 뺀다(info["followed"]).
+    고른 목소리 모두에서 따라가면, 다른 사람 목소리가 조금 섞인 작은 묶음에서 다른 사람 쪽으로 이어져
+    실제 회의 녹음에서 담은 것 중 다른 사람이 11%까지 늘었다(가장 긴 목소리 하나에서만 따라가면 1.4%).
     """
+    follow = (engine is not None and engine.cal.chain) if follow is None else follow
+    extra = set()
+    if follow and clusters and engine is not None and selected:
+        main = max(selected, key=lambda c: c.seconds)
+        extra = follow_same_person({main.index}, clusters, engine.cal.same_person_sure) - {c.index for c in selected}
     wides = [c.wide for c in selected if c.wide is not None]
     narrow = [_normalize(np.mean([c.narrow for c in selected], axis=0))]
     wide = [_normalize(np.mean(wides, axis=0))] if wides else list(narrow)
@@ -289,11 +312,15 @@ def target_from_clusters(selected: list[SpeakerCluster], clusters: list[SpeakerC
     if cache is not None:
         pieces = [cache.slice(p, s0, e0) for c in selected if c.wide is not None for p, s0, e0 in c.members]
         enroll = _join_enroll(pieces)
+    followed = [c for c in clusters or [] if c.index in extra]
+    wide += [c.wide for c in followed if c.wide is not None]
+    narrow += [c.narrow for c in followed]
     target = Target(np.stack(wide), np.stack(narrow), "자동 발견",
-                    {"clusters": [c.index for c in selected], "seconds": sum(c.seconds for c in selected)},
+                    {"clusters": [c.index for c in selected], "seconds": sum(c.seconds for c in selected),
+                     "followed": sorted(extra)},
                     margin=engine.cal.rival_margin if engine is not None else 0.0, enroll=enroll)
     if clusters:
-        target.set_rivals(clusters, exclude={c.index for c in selected})
+        target.set_rivals(clusters, exclude={c.index for c in selected} | extra)
     return target
 
 

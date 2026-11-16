@@ -149,9 +149,9 @@ header[data-testid="stHeader"] { background: transparent; }
 .stApp .vm-sources td:nth-child(1), .stApp .vm-sources td:nth-child(3), .stApp .vm-sources td:nth-child(4) { white-space: nowrap; }
 .stApp .vm-note { font-size: .8rem; color: var(--stone); margin: 0; }
 .stApp .vm-review-title { font-weight: 700; font-size: 1.02rem; color: var(--ink); margin-bottom: .2rem; }
-.st-key-review-box, .st-key-unsure-box { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+.st-key-review-box, .st-key-unsure-box, .st-key-followed-box { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
   padding: 1.1rem 1.2rem .8rem; margin-bottom: 1.2rem; gap: .5rem; }
-.stApp [class*="st-key-review-box"] button p, .stApp [class*="st-key-unsure-box"] button p,
+.stApp [class*="st-key-review-box"] button p, .stApp [class*="st-key-unsure-box"] button p, .stApp [class*="st-key-followed-box"] button p,
 .stApp [class*="st-key-year-"] button p { white-space: nowrap; }
 .stApp .vm-year.vm-date b { font-size: 1.9rem; }
 .st-key-download-all { margin-left: 2.85rem; }

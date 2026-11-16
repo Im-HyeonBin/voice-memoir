@@ -230,3 +230,48 @@ def test_reference_follows_sure_chain(engine):
         assert len(t0.rivals_wide) == 2  # 따라가지 않으면 b가 경쟁자가 된다
     finally:
         sp.SURE_CHAIN = old
+
+
+def test_auto_discovery_follows_same_person(engine):
+    """자동 발견에서 목소리 하나만 골라도, 그 목소리와 확실히 같은 묶음(과 또 그 묶음과 확실히 같은 묶음)은 함께 쓴다.
+    다른 사람은 경쟁자로 남고, follow=False면 고른 것만 쓴다."""
+    from dataclasses import replace as dc_replace
+
+    from vm.speakers import SpeakerCluster, _normalize, follow_same_person, target_from_clusters
+
+    def cluster(i, v):
+        v = _normalize(np.array(v, np.float32))
+        return SpeakerCluster(i, v, v, 10.0, ["x.wav"], [("x.wav", 0.0, 1.5)])
+
+    a = cluster(1, [1.0, 0.0, 0.1])
+    b = cluster(2, [0.75, 0.66, 0.1])   # a와 확실히 같음
+    c = cluster(3, [0.3, 0.95, 0.1])    # a와는 덜 닮았지만 b와 확실히 같음
+    d = cluster(4, [0.0, -1.0, 0.1])    # 다른 사람
+    sure = engine.cal.same_person_sure
+    assert follow_same_person({1}, [a, b, c, d], sure) == {2, 3}
+    engine.cal = dc_replace(engine.cal, chain=True)
+    t = target_from_clusters([a], [a, b, c, d], engine)
+    assert t.info["followed"] == [2, 3]
+    assert len(t.rivals_wide) == 1 and np.allclose(t.rivals_wide[0], d.centroid)
+    t0 = target_from_clusters([a], [a, b, c, d], engine, follow=False)
+    assert t0.info["followed"] == [] and len(t0.rivals_wide) == 3
+
+
+def test_follow_starts_from_longest_pick_only(engine):
+    """여러 목소리를 고르면 가장 길게 말한 목소리에서만 따라간다(작은 섞인 묶음에서 다른 사람 쪽으로 번지지 않게)."""
+    from dataclasses import replace as dc_replace
+
+    from vm.speakers import SpeakerCluster, _normalize, target_from_clusters
+
+    def cluster(i, v, sec):
+        v = _normalize(np.array(v, np.float32))
+        return SpeakerCluster(i, v, v, sec, ["x.wav"], [("x.wav", 0.0, 1.5)])
+
+    main = cluster(1, [1.0, 0.0, 0.1], 60.0)
+    frag = cluster(2, [0.8, -0.55, 0.1], 20.0)      # main과 확실히 같음 → 따라감(mixed와는 다름)
+    mixed = cluster(3, [0.0, 0.8, 0.6], 5.0)        # 사람이 함께 고른 작은 묶음(다른 사람이 섞임)
+    other = cluster(4, [0.0, 0.6, 0.8], 30.0)       # mixed와만 확실히 같은 다른 사람
+    engine.cal = dc_replace(engine.cal, chain=True)
+    t = target_from_clusters([main, mixed], [main, frag, mixed, other], engine)
+    assert t.info["followed"] == [2]
+    assert any(np.allclose(r, other.centroid) for r in t.rivals_wide)  # 다른 사람은 경쟁자로 남는다

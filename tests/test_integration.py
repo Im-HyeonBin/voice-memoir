@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import re
+from pathlib import Path
 
 import pytest
 
@@ -67,9 +68,10 @@ def test_app_end_to_end():
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=600)
     at.run()
     assert not at.exception
-    at.text_input[1].set_value(str(HARD))
+    next(t for t in at.text_input if t.label == "녹음 폴더 위치").set_value(str(HARD))  # 입력칸 순서는 환경마다 달라 이름으로 찾는다
     next(b for b in at.button if b.label == "불러오기").click().run()
     assert not at.exception
+    assert {Path(r.path).parent for r in at.session_state["records"]} == {HARD}  # 정말 그 폴더를 불러왔는지
     clusters = at.session_state["clusters"]
     assert clusters, "목소리를 하나도 못 찾았어요"
     biggest = max(clusters, key=lambda c: c.seconds)

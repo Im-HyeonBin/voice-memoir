@@ -198,7 +198,7 @@ records = S.records
 
 # ── 2 찾는 사람 ──────────────────────────────────────────
 step(2, "찾는 사람 고르기",
-     "목소리를 들어 보고 찾는 사람을 골라 주세요. 같은 사람이 둘로 나뉘어 보이면 둘 다 고르면 돼요.",
+     "목소리를 들어 보고 찾는 사람을 골라 주세요. 같은 사람으로 확실해 보이는 다른 목소리는 함께 찾아요.",
      "done" if S.target is not None else "current")
 body2 = st.container(key="body-2")
 tab_auto, tab_ref = body2.tabs(["이 폴더에 나온 목소리에서 고르기", "참고 녹음으로 지정하기"])
@@ -288,6 +288,23 @@ with tab_ref:
                            width="stretch")
                 no.button("다른 사람", key=f"other_{c.index}", on_click=same_voice, args=(c.index, False),
                           width="stretch")
+
+    def only_picked() -> None:
+        """따라간 목소리 없이 사람이 고른 목소리만으로 다시 찾는다."""
+        by_index = {c.index: c for c in S.clusters or []}
+        picked = [by_index[i] for i in S.target.info["clusters"] if i in by_index]
+        S.target = target_from_clusters(picked, S.clusters, engine, S.cache, follow=False)
+        S.results, S.accepted, S.rejected, S.overlap_regions = {}, [], [], set()
+
+    followed = S.target.info.get("followed", []) if S.target is not None and S.target.source == "자동 발견" else []
+    if followed:
+        with st.container(key="followed-box"):
+            names = ", ".join(f"목소리 {i}" for i in followed[:8]) + (f" 등 {len(followed)}개" if len(followed) > 8 else "")
+            html_block('<div class="vm-review-title">같은 사람으로 보이는 목소리도 함께 찾았어요</div>'
+                       f'<p class="vm-text">고른 목소리와 확실히 같은 사람으로 보이는 {html.escape(names)}를 함께 썼어요. '
+                       '멀리서 녹음했거나 녹음이 길면 한 사람이 여러 목소리로 나뉘어 보이기 때문이에요. '
+                       '다른 사람이 섞여 보이면 고른 목소리만으로 다시 찾을 수 있어요.</p>')
+            st.button("고른 목소리만으로 찾기", key="only-picked", on_click=only_picked)
 
 target = S.target
 if target is None:
