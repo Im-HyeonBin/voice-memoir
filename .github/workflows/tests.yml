@@ -1,0 +1,25 @@
+# 모델 가중치·데이터 없이 도는 시험. 같은 순서(새로 복제 → CPU torch 설치 → ruff → pytest)를
+# 우분투 24.04 / Python 3.12 서버에서 그대로 돌려 확인했다. 가중치가 필요한 시험 6개는 건너뛴다.
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: 설치(CPU용 torch)
+        run: pip install -r requirements.txt -r requirements-dev.txt --extra-index-url https://download.pytorch.org/whl/cpu
+      - name: 코드 점검
+        run: ruff check --select F,E9 app.py cli.py visual.py vm tools tests
+      - name: 시험
+        run: python -m pytest tests -rs

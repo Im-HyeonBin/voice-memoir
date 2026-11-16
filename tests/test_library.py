@@ -99,3 +99,30 @@ def test_unreadable_file_is_reported_not_raised(tmp_path):
     (d / "깨진 파일.m4a").write_bytes(b"not audio at all")
     rec = Library(FakeEngine(), tmp_path / "cache").analyze(d / "깨진 파일.m4a")
     assert rec.error and rec.duration == 0 and len(rec.windows) == 0
+
+
+def test_scan_falls_back_when_workers_die(tmp_path, monkeypatch):
+    """작업자가 어떤 이유로든 죽으면 스캔이 실패하지 않고 이 프로세스에서 이어서 계산한다."""
+    import contextlib
+    import sys
+    import types
+
+    import vm.library as L
+    from vm import audio
+
+    from conftest import FakeEngine, compose
+    bomb = tmp_path / "bomb_app.py"
+    bomb.write_text("raise RuntimeError('작업자가 화면 파일을 다시 실행했다')\n")
+    fake_main = types.ModuleType("__main__")
+    fake_main.__file__ = str(bomb)
+    monkeypatch.setitem(sys.modules, "__main__", fake_main)
+    monkeypatch.setattr(L, "_workers_skip_main", contextlib.nullcontext)  # 일부러 작업자가 죽게
+    folder = tmp_path / "녹음"
+    folder.mkdir()
+    for i in range(3):
+        audio.write_wav(folder / f"{i}.wav", compose(("me", 2)) * 0.1)
+    eng = FakeEngine()
+    progress = []
+    records = L.Library(eng, tmp_path / "cache").scan(folder, devices=["cpu", "cpu"],
+                                                      progress=lambda i, n, name: progress.append(i))
+    assert len(records) == 3 and eng.analyzed == 3 and progress[-1] == 3
