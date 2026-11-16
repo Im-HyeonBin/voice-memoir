@@ -33,6 +33,9 @@ PIECE_SEC = 2.0           # 확인 덩어리 길이. 3초보다 말 주고받는
 TOP_MEMBERS = 24          # 군집 대표 조각 수
 ENROLL_SEC = 10.0         # 대상 화자 추출에 줄 찾을 사람 목소리 길이
 OVERLAP_CONTEXT = 4.0     # 대상 화자 추출에 넣는 앞뒤 포함 길이(초)
+MERGE_LINKAGE = "average"   # 쪼개진 같은 사람 묶음 합치기 방법
+MERGE_OFFSET = 0.0          # 합치는 기준 = same_person_sure + 이 값
+SURE_CHAIN = True           # 참고 녹음: '확실히 같은 목소리'와 확실히 같은 목소리도 같은 사람으로
 SAMPLE_CONTEXT = 8.0      # 목소리마다 들어 볼 구간을 대표 조각 앞뒤 이만큼 안에서 고른다
 
 
@@ -40,14 +43,36 @@ def _normalize(v: np.ndarray) -> np.ndarray:
     return v / (np.linalg.norm(v) + 1e-9)
 
 
-def _cluster(emb: np.ndarray, distance: float) -> np.ndarray:
+def _cluster(emb: np.ndarray, distance: float, linkage: str = "average") -> np.ndarray:
     if len(emb) < 2:
         return np.zeros(len(emb), dtype=int)
     model = AgglomerativeClustering(
-        n_clusters=None, metric="cosine", linkage="average",
+        n_clusters=None, metric="cosine", linkage=linkage,
         distance_threshold=distance,
     )
     return model.fit_predict(emb)
+
+
+def _merge_fragments(emb: np.ndarray, labels: np.ndarray, narrow: np.ndarray, sure: float) -> np.ndarray:
+    """한 사람이 여러 묶음으로 쪼개졌으면 대표 지문끼리 '확실히 같은 사람'(sure)만큼 닮은 묶음을 합쳐 새 대표 지문을 돌려준다.
+
+    짧은 조각끼리 묶으면 멀리서 녹음한 긴 회의처럼 한 사람 목소리가 조금씩 다른 녹음에서는 한 사람이 수십 묶음으로
+    쪼개졌다(AMI 회의). 묶음 대표 지문은 조각보다 안정적이라 한 번 더 묶으면 합쳐진다. 통화 음질 묶음과 일반 묶음은
+    따로 합친다(둘은 아래에서 전화 음질 지문으로 잇는다).
+    """
+    groups = [np.where(labels == k)[0] for k in range(labels.max() + 1)]
+    cents = np.stack([_normalize(emb[g].mean(0)) for g in groups])
+    phone = np.array([narrow[g].mean() >= 0.5 for g in groups])
+    out = []
+    for kind in (False, True):
+        ks = np.where(phone == kind)[0]
+        if len(ks) == 0:
+            continue
+        lab = _cluster(cents[ks], 1 - (sure + MERGE_OFFSET), MERGE_LINKAGE)
+        for m in range(lab.max() + 1):
+            idx = np.concatenate([groups[k] for k in ks[lab == m]])
+            out.append(_normalize(emb[idx].mean(0)))
+    return np.stack(out)
 
 
 def _sim(emb: np.ndarray, protos: np.ndarray) -> np.ndarray:
@@ -144,8 +169,8 @@ def _augment(engine: VoiceEngine, pieces: list[np.ndarray]) -> tuple[list[np.nda
 
 def discover_speakers(records: list[FileRecord], engine: VoiceEngine, cache: AudioCache,
                       distance: float | None = None, min_seconds: float = 4.0,
-                      max_windows: int = 4000, seed: int = 0) -> list[SpeakerCluster]:
-    """라이브러리에 나오는 사람들을 말한 시간이 긴 순서로 돌려준다."""
+                      max_windows: int = 4000, seed: int = 0, merge: bool = True) -> list[SpeakerCluster]:
+    """라이브러리에 나오는 사람들을 말한 시간이 긴 순서로 돌려준다. merge면 쪼개진 같은 사람 묶음을 합친다."""
     owners = [(ri, wi) for ri, r in enumerate(records) for wi in range(len(r.windows))]
     if not owners:
         return []
@@ -157,8 +182,10 @@ def discover_speakers(records: list[FileRecord], engine: VoiceEngine, cache: Aud
     if len(emb) > max_windows:
         pick = np.sort(np.random.default_rng(seed).choice(len(emb), max_windows, replace=False))
     labels = _cluster(emb[pick], engine.cal.cluster_distance if distance is None else distance)
-    centroids = np.stack([_normalize(emb[pick][labels == k].mean(0))
-                          for k in range(labels.max() + 1)])
+    if merge and engine.cal.merge:
+        centroids = _merge_fragments(emb[pick], labels, narrow_win[pick], engine.cal.same_person_sure)
+    else:
+        centroids = np.stack([_normalize(emb[pick][labels == k].mean(0)) for k in range(labels.max() + 1)])
     assign = (emb @ centroids.T).argmax(1)
 
     raw = []
@@ -299,6 +326,19 @@ def target_from_reference(engine: VoiceEngine, wav: np.ndarray,
         protos = np.vstack([np.stack(wide), np.stack(narrow)])
         sims = {c.index: float(_sim(c.centroid[None], protos)[0]) for c in clusters}
         sure = {i for i, v in sims.items() if v >= cal.same_person_sure}
+        if SURE_CHAIN and cal.chain:  # 확실히 같은 목소리와 확실히 같을 만큼 닮은 목소리도 같은 사람으로 본다(쪼개진 묶음을 따라간다)
+            cents = {c.index: c.centroid for c in clusters}
+            frontier = set(sure)
+            while frontier:
+                ref = np.stack([cents[j] for j in frontier])
+                frontier = set()
+                for i, v in cents.items():
+                    if i not in sure:
+                        best = float((ref @ v).max())
+                        sims[i] = max(sims[i], best)
+                        if best >= cal.same_person_sure:
+                            frontier.add(i)
+                sure |= frontier
         info["unsure"] = sorted((i for i, v in sims.items() if cal.same_person <= v < cal.same_person_sure),
                                 key=lambda i: -sims[i])
         confirmed = [c for c in clusters if c.index in (set(same) | (sure if sure_protos else set()))]

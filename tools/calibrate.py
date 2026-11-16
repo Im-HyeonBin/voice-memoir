@@ -60,12 +60,16 @@ def calibrate(m) -> Calibration:
 
 def main() -> None:
     import json
-    from dataclasses import asdict
+    from dataclasses import asdict, replace
     crops, bad, spk = korean_crops()
     neg_ref = negatives(VoiceEngine(ROOT / "models", "auto", "ecapa"), crops, bad, spk)
     for name in sys.argv[1:]:
         eng = VoiceEngine(ROOT / "models", "auto", name, require_cal=False)  # 기준값은 지금 만든다
         cal = calibrate(mapper(neg_ref, negatives(eng, crops, bad, spk)))
+        if name.startswith("ecapa"):
+            # ECAPA 계열은 묶음 합치기·확실히 같은 사람 따라가기를 켜면 합성 세트에서 다른 사람까지 이어 붙었다
+            # (bench/server/ecapa_ko_merge_chain_on_*.txt). 기본 모델에서만 켠다.
+            cal = replace(cal, merge=False, chain=False)
         print(name, cal, flush=True)
         folder = ROOT / "models" / "alt" / name
         if folder.exists():  # 앱·시험 도구가 이 모델을 쓸 때 읽는다

@@ -178,3 +178,55 @@ def test_discover_sample_cost_does_not_grow_with_recording_length(engine):
         p, s, e = c.sample
         assert any(abs(s - ms) <= 8 + 6 for _, ms, _ in c.members[:6])
     assert long_rows <= short_rows * 2  # 녹음이 10배 길어도 확인할 조각 수는 거의 그대로
+
+
+def test_merge_fragments_joins_same_person_only():
+    """한 사람이 두 묶음으로 쪼개졌으면 합치고, 다른 사람과는 합치지 않는다. 통화 음질 묶음은 따로 합친다."""
+    from vm.speakers import _merge_fragments, _normalize
+
+    rng = np.random.default_rng(0)
+
+    def windows(center, n):
+        return np.stack([_normalize(center + rng.normal(0, 0.05, 3)) for _ in range(n)])
+
+    me_a, me_b = windows(np.array([1.0, 0.15, 0.1]), 10), windows(np.array([1.0, -0.15, 0.1]), 10)
+    other = windows(np.array([0.0, 1.0, 0.1]), 10)
+    me_phone = windows(np.array([1.0, 0.0, 0.1]), 10)
+    emb = np.vstack([me_a, me_b, other, me_phone])
+    labels = np.repeat([0, 1, 2, 3], 10)
+    narrow = np.repeat([False, False, False, True], 10)
+    cents = _merge_fragments(emb, labels, narrow, sure=0.8)
+    assert len(cents) == 3  # me_a + me_b, other, me_phone(따로)
+    sims = cents @ np.stack([_normalize(me_a.mean(0) + me_b.mean(0)), _normalize(other.mean(0))]).T
+    assert (sims.max(0) > 0.99).all()
+
+
+def test_reference_follows_sure_chain(engine):
+    """참고 녹음과 직접은 덜 닮았어도 '확실히 같은 목소리'와 확실히 같은 묶음은 같은 사람으로 본다(실제 회의 녹음에서
+    한 사람이 수십 묶음으로 쪼개져, 자기 묶음이 경쟁자가 되어 자기 목소리를 막던 문제). 다른 사람은 그대로 경쟁자다."""
+    from dataclasses import replace as dc_replace
+
+    import vm.speakers as sp
+    from vm.speakers import SpeakerCluster, _normalize, target_from_reference
+    engine.cal = dc_replace(engine.cal, chain=True)  # 따라가기는 모델 기준값에서 켜는 것(기본 모델만 켬)
+
+    def cluster(i, v):
+        v = _normalize(np.array(v, np.float32))
+        return SpeakerCluster(i, v, v, 10.0, ["x.wav"], [("x.wav", 0.0, 1.5)])
+
+    a = cluster(1, [0.75, 0.66, 0.1])   # 참고 녹음과 확실히 같음
+    b = cluster(2, [0.3, 0.95, 0.1])    # 참고와는 덜 닮았지만 a와는 확실히 같음
+    c = cluster(3, [0.0, -1.0, 0.1])    # 다른 사람
+    cal = engine.cal
+    assert float(b.centroid @ ME_EMB) < cal.same_person and float(b.centroid @ a.centroid) >= cal.same_person_sure
+    ref = compose(("me", 4))
+    t = target_from_reference(engine, ref, [a, b, c], augment=False)
+    assert any(np.allclose(p, b.centroid) for p in t.wide)  # b도 기준 지문에 든다
+    assert len(t.rivals_wide) == 1 and np.allclose(t.rivals_wide[0], c.centroid)
+    old = sp.SURE_CHAIN
+    try:
+        sp.SURE_CHAIN = False
+        t0 = target_from_reference(engine, ref, [a, b, c], augment=False)
+        assert len(t0.rivals_wide) == 2  # 따라가지 않으면 b가 경쟁자가 된다
+    finally:
+        sp.SURE_CHAIN = old

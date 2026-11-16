@@ -40,6 +40,10 @@ class Calibration:
     maybe_band: float          # 기준보다 이만큼 아래까지는 사람이 확인해 볼 구간으로 보여 준다
     rival_margin: float        # 경쟁자보다 이만큼은 더 닮아야 담는다
     same_person_sure: float | None = None  # 이만큼 닮으면 확실히 같은 사람. same_person과 사이는 사람에게 묻는다
+    # 아래 둘은 실제 회의 녹음(AMI)에서 한 사람이 수십 묶음으로 쪼개지는 문제 때문에 넣었다. 실제 녹음과 합성 세트에서
+    # 모두 확인한 기본 모델에만 켠다(ECAPA 한국어 모델은 켜면 다른 사람까지 이어 붙었다, README '실제 녹음 검증').
+    merge: bool = False  # 쪼개진 같은 사람 묶음을 same_person_sure로 합친다(vm/speakers.py _merge_fragments)
+    chain: bool = False  # 참고 녹음에서 '확실히 같은 목소리'와 확실히 같은 목소리도 같은 사람으로 따라간다
 
     def __post_init__(self):
         if self.same_person_sure is None:
@@ -80,7 +84,7 @@ MODELS = {
     KO_MODEL: ("samresnet", "avg_model.pt", (None, None),
                Calibration(levels=(0.575, 0.623, 0.674, 0.738, 0.784), cluster_distance=0.377, link=0.784,
                            same_person=0.674, candidate_margin=0.146, candidate_floor=0.345, maybe_band=0.096,
-                           rival_margin=0.048, same_person_sure=0.76)),
+                           rival_margin=0.048, same_person_sure=0.76, merge=True, chain=True)),
 }
 
 

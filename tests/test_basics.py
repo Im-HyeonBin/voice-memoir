@@ -129,3 +129,13 @@ def test_load_cal_roundtrip(tmp_path):
     assert _load_cal(f) == ECAPA_CAL
     with pytest.raises(FileNotFoundError):
         _load_cal(tmp_path / "없음.json")
+
+
+def test_merge_and_chain_only_for_validated_model():
+    """묶음 합치기·따라가기는 실제 회의와 합성 세트에서 모두 확인한 기본 모델에만 켠다."""
+    assert MODELS[KO_MODEL][3].merge and MODELS[KO_MODEL][3].chain
+    assert not ECAPA_CAL.merge and not ECAPA_CAL.chain
+    for path in TRAINED_CALS:
+        if path.parent.name.startswith("ecapa"):
+            c = _load_cal(path)
+            assert not c.merge and not c.chain
