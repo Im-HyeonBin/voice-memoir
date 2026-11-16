@@ -1,5 +1,7 @@
 # 목소리 발굴
 
+[![tests](https://github.com/Im-HyeonBin/voice-memoir/actions/workflows/tests.yml/badge.svg)](https://github.com/Im-HyeonBin/voice-memoir/actions/workflows/tests.yml)
+
 흩어진 녹음(가족 영상·통화 녹음·음성 메모)에서 한 사람의 목소리만 찾아 해마다 모아 주는 로컬 앱.
 돌아가셨거나 투병 중이라 새로 녹음할 수 없는 부모님의 목소리를, 이미 가진 녹음에서 되찾는 상황을 겨냥했다.
 분석은 모두 이 컴퓨터 안에서 하고, 녹음은 밖으로 보내지 않는다.
@@ -88,6 +90,7 @@ flowchart TD
 ## 실행
 
 ```bash
+git clone https://github.com/Im-HyeonBin/voice-memoir && cd voice-memoir
 python3.13 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/streamlit run app.py          # 화면 (http://localhost:8501)
 ```
