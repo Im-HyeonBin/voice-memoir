@@ -420,6 +420,11 @@ bench/                 정답 파일과 측정 기록(bench/server/는 GPU 서�
 - 스캔 작업자는 수학 라이브러리 스레드를 하나로 묶어야 서로 코어를 뺏지 않는다.
 - 화면 글꼴(고운바탕, 프리텐다드)은 인터넷이 될 때 CDN에서 받아 온다. 글꼴만 받아 올 뿐 녹음이나 분석 결과는 보내지 않는다.
 
+## 라이선스
+
+코드는 MIT 라이선스다([LICENSE](LICENSE)). 다른 프로젝트에서 옮긴 `vm/tse.py`(ESPnet), `vm/samresnet.py`(WeSpeaker)는
+원래 조건인 Apache-2.0을 따른다. 모델 가중치와 데이터는 저장소에 없고 각자의 조건을 따른다. 기본 화자 지문 모델은 비상업으로만 쓸 수 있다.
+
 ## 출처
 
 가져다 쓴 코드·모델·데이터와 라이선스는 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)에 있다. 데이터는 `tools/fetch_data.py`로 원래 출처에서 받고 저장소에는 넣지 않는다.
