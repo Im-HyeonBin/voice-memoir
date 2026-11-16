@@ -78,6 +78,7 @@ def main() -> None:
     tot = defaultdict(lambda: defaultdict(float))
     rows = []
     n_clusters = {}
+    followed = {}
     by_level = defaultdict(lambda: defaultdict(float))
     for g in args.groups:
         folder = ROOT / "data" / "ami" / g
@@ -105,6 +106,10 @@ def main() -> None:
             asked = len(unsure)
             if chosen:
                 targets["자동"] = target_from_clusters(chosen, clusters, eng, cache)
+                # 카드 하나만 고름: 그 사람 말이 가장 많이 든 목소리 하나만 고르고 나머지는 앱이 따라간다
+                one = max(chosen, key=lambda c: c.seconds)
+                targets["자동1"] = target_from_clusters([one], clusters, eng, cache)
+                followed[(g, who)] = len(targets["자동1"].info.get("followed", []))
             for mode, tgt in targets.items():
                 for lv, thr in enumerate(eng.cal.levels if args.all_levels else []):
                     res = search(records, tgt, eng, cache, thr)
@@ -132,7 +137,8 @@ def main() -> None:
     for g, who, mode, t, f, w, n in rows:
         share = f"{w / (f + w):.1%}" if f + w else "-"
         print(f"{g:8s} {who:8s} {mode:4s} {t / 60:7.1f}분 {f / t if t else 0:8.0%} {w:10.1f}초 {share:>14s}"
-              + (f"  (목소리 {n}개 고름)" if mode == "자동" else f"  (물은 목소리 {n}개)" if mode == "참고+확인" else ""))
+              + (f"  (목소리 {n}개 고름)" if mode == "자동" else f"  (물은 목소리 {n}개)" if mode == "참고+확인"
+                 else f"  (1개 고르고 {followed.get((g, who), 0)}개 따라감)" if mode == "자동1" else ""))
     print()
     for mode, d in tot.items():
         share = d["wrong"] / (d["found"] + d["wrong"]) if d["found"] + d["wrong"] else 0
