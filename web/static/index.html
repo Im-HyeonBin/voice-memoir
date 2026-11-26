@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>목소리 발굴</title>
+<meta name="description" content="가족 영상, 통화 녹음, 음성 메모에 흩어진 한 사람의 목소리를 찾아 해마다 모아 드려요.">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/static/fonts/VMSerif-Bold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/app.js" defer></script>
+</head>
+<body data-screen="home">
+
+<header class="top" id="top">
+  <div class="top-in">
+    <button class="mark" id="homeBtn" aria-label="처음 화면으로">
+      <svg width="26" height="20" viewBox="0 0 26 20" aria-hidden="true"><rect x="0" y="7" width="3" height="6" rx="1.5" fill="#cfcbbf"/><rect x="5" y="4" width="3" height="12" rx="1.5" fill="#cfcbbf"/><rect x="10" y="1" width="3" height="18" rx="1.5" fill="#2f5d50"/><rect x="15" y="5" width="3" height="10" rx="1.5" fill="#2f5d50"/><rect x="20" y="8" width="3" height="4" rx="1.5" fill="#cfcbbf"/></svg>
+      목소리 발굴
+    </button>
+    <nav class="steps" aria-label="진행 단계">
+      <span data-s="scan">1 녹음 살펴보기</span>
+      <span data-s="pick">2 목소리 고르기</span>
+      <span data-s="result">3 해마다 듣기</span>
+    </nav>
+    <button class="wipe" id="wipeBtn">올린 녹음 지금 지우기</button>
+  </div>
+</header>
+
+<main>
+  <!-- 첫 화면 -->
+  <section class="screen on" id="s-home">
+    <div class="hero">
+      <h1>흩어진 녹음 속에서<br><em>한 사람의 목소리</em>를 찾아 드려요</h1>
+      <p class="lede">가족 영상, 통화 녹음, 음성 메모를 올려 주세요. 여러 사람이 섞인 녹음에서 그 사람이 말한 부분만 골라 해마다 모아 드려요.</p>
+      <div class="band" id="heroBand" role="img" aria-label="여러 사람이 섞인 녹음에서 찾는 사람의 목소리만 초록색으로 칠한 그림"></div>
+      <div class="legend"><span><i class="k-other"></i>다른 사람</span><span><i class="k-moss"></i>찾는 사람</span></div>
+    </div>
+
+    <div class="drop" id="drop">
+      <h2>녹음 파일을 여기에 끌어다 놓으세요</h2>
+      <p id="limitsNote">영상과 통화 녹음이 섞여 있어도 괜찮아요.</p>
+      <div class="actions">
+        <label class="btn primary" for="fileInput">파일 고르기</label>
+        <input type="file" id="fileInput" multiple hidden>
+        <button class="btn ghost" id="demoBtn">예시 녹음으로 해 보기</button>
+      </div>
+    </div>
+
+    <div class="how">
+      <div><b>1</b><h3>녹음 올리기</h3><p>파일마다 녹음한 날짜를 찾아내고, 사람이 말하는 부분만 살펴봐요.</p></div>
+      <div><b>2</b><h3>목소리 고르기</h3><p>녹음에 나온 목소리를 들어 보고 찾을 사람을 고르거나, 그 사람 목소리가 담긴 짧은 녹음을 올려요.</p></div>
+      <div><b>3</b><h3>해마다 듣기</h3><p>그 사람이 말한 부분만 해마다 모아 들려드려요. 모은 목소리는 파일로 받을 수 있어요.</p></div>
+    </div>
+
+    <div class="safe">
+      <h3>올린 녹음은 이렇게 다뤄요</h3>
+      <ul>
+        <li id="ttlNote">마지막으로 쓰고 1시간이 지나면 올린 녹음과 결과를 모두 지워요.</li>
+        <li>언제든 위쪽 ‘올린 녹음 지금 지우기’로 바로 지울 수 있어요.</li>
+        <li>올린 녹음을 모델 학습이나 다른 용도에 쓰지 않아요.</li>
+        <li>녹음은 서버에서 한 번에 한 사람 것만 분석해요.</li>
+      </ul>
+    </div>
+
+    <footer class="foot">
+      <span>목소리 발굴</span>
+      <a href="https://github.com/Im-HyeonBin/voice-memoir" rel="noopener noreferrer" target="_blank">소스 코드와 검증 결과</a>
+      <span>글꼴 Pretendard·고운바탕(SIL OFL)을 줄여 씀</span>
+    </footer>
+  </section>
+
+  <!-- 살펴보기 -->
+  <section class="screen" id="s-scan">
+    <div class="head">
+      <h1 id="scanTitle">녹음을 올리고 있어요</h1>
+      <p id="scanNote"></p>
+      <div class="meter"><div id="meter"></div></div>
+      <div class="meter-note" id="meterNote"></div>
+    </div>
+    <div class="files" id="files"></div>
+  </section>
+
+  <!-- 목소리 고르기 -->
+  <section class="screen" id="s-pick">
+    <div class="head">
+      <h1>찾을 사람을 골라 주세요</h1>
+      <p id="pickSummary"></p>
+      <details class="filelist" id="fileDetails"><summary>파일마다 녹음 날짜 보기</summary><div id="fileTable"></div></details>
+    </div>
+    <div class="tabs" role="tablist">
+      <button role="tab" class="on" data-tab="voices" aria-selected="true">녹음에 나온 목소리에서 고르기</button>
+      <button role="tab" data-tab="ref" aria-selected="false">참고 녹음으로 지정하기</button>
+    </div>
+    <div id="tab-voices">
+      <p class="hint">많이 말한 목소리부터 모았어요. 같은 사람이 둘로 나뉘어 보이면 둘 다 고르면 돼요.</p>
+      <div id="voices"></div>
+      <button class="more" id="moreBtn" hidden></button>
+    </div>
+    <div id="tab-ref" hidden>
+      <p class="hint">찾을 사람이 말하는 녹음을 올려 주세요. 5초면 되지만, 30초쯤 되면 멀리서 녹음한 목소리까지 더 많이 찾아요. 다른 목소리가 조금 섞여 있어도 가장 많이 말한 사람을 기준으로 삼아요.</p>
+      <div class="refdrop" id="refDrop">
+        <span id="refName">참고 녹음을 끌어다 놓거나</span>
+        <label class="linkbtn" for="refInput">파일 고르기</label>
+        <input type="file" id="refInput" hidden>
+      </div>
+      <button class="linkbtn" id="demoRefBtn" hidden>예시 참고 녹음으로 찾기</button>
+    </div>
+    <div class="go">
+      <label for="who">찾는 사람을 뭐라고 부를까요?</label>
+      <input id="who" maxlength="20" placeholder="예: 아버지" autocomplete="off">
+      <button class="btn primary" id="findBtn" disabled>목소리를 골라 주세요</button>
+    </div>
+  </section>
+
+  <!-- 결과 -->
+  <section class="screen" id="s-result">
+    <div class="working" id="working" hidden><span class="spin" aria-hidden="true"></span><span id="workingText">찾는 중이에요…</span></div>
+    <div id="resultBody">
+      <div class="rhead">
+        <h1 id="rTitle"></h1>
+        <div class="acts">
+          <button class="btn ghost small" id="backPick">다른 목소리 고르기</button>
+          <a class="btn primary small" id="zipBtn" download>전부 받기 (zip)</a>
+        </div>
+      </div>
+      <p class="sum" id="rSum"></p>
+      <div id="notices"></div>
+      <div class="controls">
+        <div class="seg" id="viewSeg" role="group" aria-label="보는 방법">
+          <button data-v="year" class="on">해마다</button><button data-v="date">날짜마다</button>
+        </div>
+        <div class="levels">
+          <span>얼마나 확실할 때만 담을까요</span>
+          <div class="seg" id="levelSeg" role="group" aria-label="담는 기준"></div>
+        </div>
+      </div>
+      <div id="ask"></div>
+      <div class="tl" id="timeline"></div>
+      <div id="reviewed"></div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

@@ -20,6 +20,6 @@ jobs:
       - name: 설치(CPU용 torch)
         run: pip install -r requirements.txt -r requirements-dev.txt --extra-index-url https://download.pytorch.org/whl/cpu
       - name: 코드 점검
-        run: ruff check --select F,E9 app.py cli.py visual.py vm tools tests
+        run: ruff check --select F,E9 app.py cli.py visual.py vm tools tests web
       - name: 시험
         run: python -m pytest tests -rs

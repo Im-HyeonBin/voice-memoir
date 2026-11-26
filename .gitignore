@@ -29,3 +29,9 @@ docs/*.pdf
 /data_ami_check/
 /data_msdwild/
 bench/msdwild_lang.json
+
+# 온라인 서비스 세션 폴더(올린 녹음)와 로컬 실행 설정
+/.webdata/
+/.claude/
+/web/mock/
+/deploy/demo/
