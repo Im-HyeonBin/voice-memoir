@@ -72,8 +72,9 @@ def build_service(**kw) -> Service:
     audio.INPUT_OPTS = audio.SAFE_INPUT_OPTS
     audio.TIMEOUT = 300
     data = Path(os.environ.get("VM_DATA", ROOT / ".webdata"))
-    demo_dir = os.environ.get("VM_DEMO_DIR", str(ROOT / "demo_library"))
-    demo_ref = os.environ.get("VM_DEMO_REF", str(ROOT / "demo_sources" / "참고음성_본인_7초.wav"))
+    # 예시 녹음은 공개 음성만으로 만든 것(tools/make_public_demo.py)을 쓴다. 개인 목소리가 든 demo_library는 쓰지 않는다.
+    demo_dir = os.environ.get("VM_DEMO_DIR", str(ROOT / "deploy" / "demo" / "library"))
+    demo_ref = os.environ.get("VM_DEMO_REF", str(ROOT / "deploy" / "demo" / "reference.wav"))
     opts = dict(demo_dir=demo_dir, demo_ref=demo_ref, extractor_factory=_extractor_factory, devices=_devices())
     opts.update(kw)
     return Service(data, opts.pop("engine_factory", _engine_factory), **opts)

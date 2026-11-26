@@ -1,0 +1,4 @@
+예시 녹음은 공개 음성만으로 만든 합성 녹음이다(실제 가족 녹음이 아니다).
+- 한국어 화자: Zeroth-Korean 테스트 세트(OpenSLR 40), CC BY 4.0. 찾을 사람은 화자 118
+- 영어 화자: LibriSpeech 샘플(CC BY 4.0), VOiCES 샘플(CC BY 4.0)
+- 잡음·전화 음질은 tools/make_demo_library.py의 방법으로 입혔다

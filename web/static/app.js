@@ -260,7 +260,7 @@ async function startDemo() {
   } catch (e) { toast(e.message); return; }
   go('scan');
   $('#scanTitle').textContent = '예시 녹음을 살펴보고 있어요';
-  $('#scanNote').textContent = '가족 모임, 통화 녹음, 카카오톡 영상처럼 꾸민 예시 녹음이에요.';
+  $('#scanNote').textContent = '가족 모임, 통화 녹음, 카카오톡 영상처럼 꾸민 예시 녹음이에요. 공개 음성 자료(Zeroth-Korean, LibriSpeech, VOiCES, CC BY 4.0)로 만들었어요.';
   $('#files').innerHTML = '';
   poll();
 }

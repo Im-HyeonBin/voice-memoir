@@ -1,6 +1,6 @@
 # 가져다 쓴 코드·모델·데이터
 
-저장소에는 코드만 들어 있다. 모델 가중치와 데이터는 넣지 않았고, 처음 실행할 때 원래 출처에서 받거나(`tools/fetch_data.py`) 직접 학습해 만든다.
+저장소에는 코드와 온라인 서비스의 예시 녹음(`deploy/demo/`, 공개 음성으로 만든 합성 녹음)·줄인 글꼴만 들어 있다. 모델 가중치와 그 밖의 데이터는 넣지 않았고, 처음 실행할 때 원래 출처에서 받거나(`tools/fetch_data.py`) 직접 학습해 만든다.
 
 ## 코드
 
@@ -20,7 +20,9 @@
 | ESPnet `Wangyou_Zhang_librimix_train_enh_tse_td_speakerbeam_raw` | 대상 화자 추출의 출발점 | CC BY 4.0 |
 | faster-whisper, Whisper | 받아쓰기(선택) | MIT |
 | Streamlit | 화면 | Apache-2.0 |
-| 고운바탕, Pretendard | 화면 글꼴(CDN) | SIL OFL 1.1 |
+| FastAPI, Uvicorn, python-multipart | 온라인 서비스 서버 | MIT, BSD-3-Clause, Apache-2.0 |
+| 고운바탕, Pretendard | Streamlit 화면 글꼴(CDN) | SIL OFL 1.1 |
+| 고운바탕, Pretendard | 온라인 서비스 글꼴. 상용 한글 2,350자로 줄여 `web/static/fonts/`에 넣었고, OFL의 예약 이름 조항에 따라 글꼴 이름을 VM Serif, VM Sans로 바꿈. 원래 라이선스 파일을 함께 둠 | SIL OFL 1.1 |
 
 ## 직접 학습한 가중치(저장소에 없음)
 
@@ -40,5 +42,6 @@
 | Pansori-TEDxKR (OpenSLR 58) | 시험에만, 바꾸거나 다시 배포하지 않음 | CC BY-NC-ND 4.0 |
 | AMI Meeting Corpus 시험 분할 세 모임(ES2004, IS1009, TS3003), 정답은 pyannote AMI-diarization-setup의 RTTM | 실제 녹음 검증에만 | CC BY 4.0 (RTTM은 MIT) |
 | MSDWild (X-LANCE, 상해교통대), 한국어 영상만 | 한국어 실제 녹음 검증에만, 저장소에 넣지 않고 합계만 실음 | 연구용 동의서(상업 이용·재배포 금지, 인용) |
-| LibriSpeech 샘플, VOiCES 샘플 | 데모·어려운 세트의 다른 사람 목소리 | CC BY 4.0 |
+| LibriSpeech 샘플, VOiCES 샘플 | 데모·어려운 세트의 다른 사람 목소리, 온라인 서비스 예시 녹음의 영어 화자 | CC BY 4.0 |
+| Zeroth-Korean 테스트 세트 화자 5명 | 온라인 서비스 예시 녹음(`deploy/demo/`, `tools/make_public_demo.py`)의 찾을 사람과 가족 역할. 잡음·전화 음질을 입혀 섞음 | CC BY 4.0 |
 | 찾을 사람 목소리 | 데모·어려운 세트 | 만든 사람 본인 녹음, 저장소에 넣지 않음 |
