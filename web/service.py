@@ -109,6 +109,8 @@ class Session:
     same: set = field(default_factory=set)
     not_same: set = field(default_factory=set)
     notice: str = ""
+    started: float = 0.0    # 지금 작업을 시작한 시각
+    estimate: float = 0.0   # 지금 작업에 걸릴 것으로 보는 시간(초)
     deleted: bool = False
     lock: threading.RLock = field(default_factory=threading.RLock)
     cache: audio.AudioCache = field(default_factory=lambda: audio.AudioCache(max_files=6))
@@ -165,6 +167,11 @@ class Service:
         self.demo_cache = self.data_dir / "demo_cache"
         self.engine_factory, self.extractor_factory = engine_factory, extractor_factory
         self.devices = devices
+        # 걸리는 시간 어림(서버 CPU 3개에서 잰 값, tools/measure_web.py). 화면에 '남은 시간'으로 보여 준다
+        self.rates = {"scan": float(os.environ.get("VM_SCAN_RATE", 4.0)),      # 녹음 초 / 걸린 초
+                      "search": float(os.environ.get("VM_SEARCH_RATE", 6.0)),  # 말소리 초 / 걸린 초
+                      "overhead": 5.0}
+        self._demo_seconds: float | None = None
         self._engine = self._extractor = None
         self.ready = threading.Event()
         self.sessions: dict[str, Session] = {}
@@ -272,6 +279,8 @@ class Service:
         u = s.uploads.get(uid)
         if u is None or u.done:
             raise UserError("올리던 파일을 찾지 못했어요. 다시 올려 주세요.")
+        if offset < u.received and offset + len(data) <= u.received:
+            return u.received  # 응답을 못 받아 같은 조각을 다시 보낸 경우(이미 받았다)
         if offset != u.received:
             raise UserError("파일 조각 순서가 맞지 않아요. 다시 올려 주세요.")
         if u.received + len(data) > u.size or len(data) > self.limits.chunk_bytes:
@@ -367,8 +376,28 @@ class Service:
                 self.running = sid
             self.run_job(s, kind, fn)
 
+    def demo_seconds(self) -> float:
+        if self._demo_seconds is None:
+            self._demo_seconds = sum(audio.duration_of(audio.probe(p)) for p in sorted(self.demo_dir.iterdir())
+                                     if p.suffix.lower() in audio.MEDIA_EXTS) if self.demo_dir else 0.0
+        return self._demo_seconds
+
+    def estimate(self, s: Session, kind: str) -> float:
+        """작업에 걸릴 시간을 녹음 길이로 어림한다(초)."""
+        r = self.rates
+        if kind == "scan":
+            sec = self.demo_seconds() if s.demo else sum(u.seconds for u in s.uploads.values() if u.done)
+            return r["overhead"] + sec / r["scan"]
+        speech = sum(rec.speech_seconds for rec in s.records or [])
+        return r["overhead"] + speech / r["search"]
+
     def run_job(self, s: Session, kind: str, fn: Callable[[Session], None]) -> None:
         s.state = "scanning" if kind == "scan" else "searching"
+        s.started = time.time()
+        try:
+            s.estimate = self.estimate(s, kind)
+        except Exception:  # 어림을 못 해도 작업은 한다
+            s.estimate = 0.0
         try:
             fn(s)
             s.state = "ready" if kind == "scan" else "done"
@@ -541,6 +570,8 @@ class Service:
             "uploads": [{"id": u.id, "name": u.name, "size": u.size, "received": u.received, "done": u.done,
                          "seconds": round(u.seconds, 1)} for u in s.uploads.values()],
             "expires_in": max(0, int(self.limits.ttl_sec - (time.time() - s.touched))),
+            "elapsed": round(time.time() - s.started, 1) if s.state in ("scanning", "searching") else 0,
+            "estimate": round(s.estimate, 1),
         }
         if recs:
             out["files"] = [{"id": i, "name": Path(r.path).name, "date": day_text(r.date) if r.date else None,

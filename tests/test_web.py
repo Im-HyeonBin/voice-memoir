@@ -324,3 +324,52 @@ def test_page_uses_no_outside_resources(client):
     for path in ("/", "/static/app.css", "/static/app.js"):
         text = c.get(path).text
         assert "googleapis" not in text and "jsdelivr" not in text and "cdn." not in text, path
+
+
+# ── 다듬기: 다시 보내기, 남은 시간, 처리방침 ─────────────
+def test_resent_chunk_is_accepted_once(client):
+    """응답을 못 받아 같은 조각을 다시 보내도 두 번 쓰지 않는다."""
+    c = client
+    sid = new_session(c)
+    data = wav_bytes(("me", 2))
+    uid = c.post(f"/api/sessions/{sid}/uploads", json={"name": "a.wav", "size": len(data)}).json()["id"]
+    half = len(data) // 2
+    assert c.put(f"/api/sessions/{sid}/uploads/{uid}?offset=0", content=data[:half]).json()["received"] == half
+    assert c.put(f"/api/sessions/{sid}/uploads/{uid}?offset=0", content=data[:half]).json()["received"] == half
+    c.put(f"/api/sessions/{sid}/uploads/{uid}?offset={half}", content=data[half:])
+    assert c.post(f"/api/sessions/{sid}/uploads/{uid}/done").status_code == 200
+    (u,) = c.svc.sessions[sid].uploads.values()
+    assert u.path.read_bytes() == data
+
+
+def test_status_carries_time_estimate(client):
+    c = client
+    sid = new_session(c)
+    upload(c, sid, "a.wav", wav_bytes(("me", 4), ("other", 4)))
+    c.post(f"/api/sessions/{sid}/scan")
+    sid_, kind, fn = c.svc.queue[0]
+    s = c.svc.sessions[sid]
+    seen = {}
+
+    def spy(sess):
+        seen.update(c.get(f"/api/sessions/{sid}").json())
+        fn(sess)
+
+    c.svc.queue.clear()
+    c.svc.run_job(s, kind, spy)
+    assert seen["state"] == "scanning" and seen["estimate"] > 0 and seen["elapsed"] >= 0
+    assert c.get(f"/api/sessions/{sid}").json()["elapsed"] == 0  # 끝나면 0
+
+
+def test_privacy_page_and_ip_forgetting(client):
+    c = client
+    page = c.get("/privacy")
+    assert page.status_code == 200 and "개인정보 처리방침" in page.text and "1시간" in page.text
+    assert "style=" not in page.text and "style=" not in c.get("/").text  # CSP가 막는 인라인 스타일을 쓰지 않는다
+    lim = server.app.state.limiter
+    lim.clear()
+    c.post("/api/sessions")
+    (ip,) = lim
+    lim[ip][-1] -= 3601  # 한 시간 전 기록이 되면
+    c.post("/api/sessions")  # 다음 요청 때 잊는다
+    assert len(lim[ip]) == 1

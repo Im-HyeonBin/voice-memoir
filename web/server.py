@@ -136,6 +136,11 @@ def index():
     return FileResponse(STATIC / "index.html")
 
 
+@app.get("/privacy", include_in_schema=False)
+def privacy():
+    return FileResponse(STATIC / "privacy.html")
+
+
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
 
@@ -162,7 +167,10 @@ def health(request: Request):
 @app.post("/api/sessions")
 def create_session(request: Request):
     ip, now = client_ip(request), time.time()
-    seen = request.app.state.limiter[ip]
+    limiter = request.app.state.limiter
+    for key in [k for k, q in limiter.items() if not q or now - q[-1] > 3600]:
+        del limiter[key]  # 접속 주소는 메모리에만 1시간 두고 잊는다(개인정보 처리방침)
+    seen = limiter[ip]
     while seen and now - seen[0] > 3600:
         seen.popleft()
     if len(seen) >= 12:

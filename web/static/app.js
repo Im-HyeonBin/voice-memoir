@@ -143,6 +143,7 @@ player.addEventListener('ended', stopPlaying);
 // ── 화면 전환 ──────────────────────────────────────────
 function go(name) {
   document.body.dataset.screen = name;
+  if (name === 'home') showResume();
   $$('.screen').forEach(s => s.classList.toggle('on', s.id === 's-' + name));
   const idx = ORDER.indexOf(name);
   $$('.steps span').forEach(sp => {
@@ -155,8 +156,34 @@ function go(name) {
 function setSession(sid) {
   S.sid = sid;
   document.body.classList.toggle('has-session', !!sid);
-  try { sid ? sessionStorage.setItem('vm_sid', sid) : sessionStorage.removeItem('vm_sid'); } catch (e) { /* 저장 못 해도 동작 */ }
+  try { sid ? localStorage.setItem('vm_sid', sid) : localStorage.removeItem('vm_sid'); } catch (e) { /* 저장 못 해도 동작 */ }
 }
+function showResume() {
+  const st = S.status, el = $('#resume');
+  const alive = S.sid && st && (st.voices_ready || ['queued', 'scanning', 'searching'].includes(st.state));
+  el.hidden = !alive;
+  if (alive) {
+    const m = Math.max(1, Math.round((st.expires_in || 0) / 60));
+    $('#resumeNote').textContent = st.has_result ? `찾은 결과를 다시 볼 수 있어요. 그대로 두면 약 ${m}분 뒤에 지워져요.`
+      : `그대로 두면 약 ${m}분 뒤에 지워져요.`;
+  }
+}
+async function resume() {
+  try {
+    const st = await api('GET', '');
+    S.status = st;
+    if (['queued', 'scanning', 'searching'].includes(st.state)) { showProgress(st); poll(); }
+    else await settle(st);
+  } catch (e) { if (e.status !== 404) toast(e.message); }
+}
+async function wipeAll(silent) {
+  try { await api('DELETE', ''); } catch (e) { /* 이미 지워졌어도 화면은 처음으로 */ }
+  setSession(null);
+  S.status = S.voices = S.result = null;
+  go('home');
+  if (!silent) toast('올린 녹음과 결과를 모두 지웠어요.');
+}
+function setTitle(text) { document.title = text ? `${text} · 목소리 발굴` : '목소리 발굴'; }
 function lost(msg) {
   setSession(null);
   S.status = S.voices = S.result = null;
@@ -229,7 +256,19 @@ async function uploadOne(item) {
   renderUploadRows();
   const u = await api('POST', '/uploads', { name: f.name, size: f.size, modified: f.lastModified || null });
   for (let off = 0; off < f.size; off += chunk) {
-    await api('PUT', `/uploads/${u.id}?offset=${off}`, f.slice(off, off + chunk));
+    for (let attempt = 0; ; attempt++) {
+      try {
+        await api('PUT', `/uploads/${u.id}?offset=${off}`, f.slice(off, off + chunk));
+        break;
+      } catch (e) {
+        const retry = e.status === 0 || e.status >= 500;
+        if (!retry || attempt >= 4) throw e;
+        item.msg = '연결이 끊겨 다시 보내는 중…';
+        renderUploadRows();
+        await new Promise(r => setTimeout(r, [1000, 3000, 6000, 10000][attempt]));
+        item.msg = '';
+      }
+    }
     item.pct = Math.min(100, Math.round((off + chunk) / f.size * 100));
     renderUploadRows();
   }
@@ -247,7 +286,7 @@ function renderUploadRows() {
     const st = { wait: '기다리는 중', up: `올리는 중 ${i.pct}%`, check: '확인하는 중…', done: '올림', bad: '올리지 못함' }[i.state];
     const cls = i.state === 'done' ? 'ok' : i.state === 'bad' ? 'bad' : '';
     return `<div class="frow"><span class="name" title="${esc(i.name)}">${esc(i.name)}</span>
-      <span class="meta d">${i.state === 'bad' ? esc(i.msg) : ''}</span>
+      <span class="meta d">${esc(i.msg || '')}</span>
       <span class="meta l">${i.seconds ? clock(i.seconds) : bytes(i.file.size)}</span>
       <span class="st ${cls}">${st}</span></div>`;
   }).join('');
@@ -288,6 +327,12 @@ async function poll() {
 function waitingText(st) {
   return st.queue ? `앞에 ${st.queue}명이 기다리고 있어요. 차례가 되면 바로 시작해요.` : '';
 }
+function remainText(st) {
+  if (!st.estimate) return '';
+  const left = st.estimate - st.elapsed;
+  if (left <= 10) return ' 곧 끝나요.';
+  return left < 60 ? ` 남은 시간 약 ${Math.ceil(left / 10) * 10}초.` : ` 남은 시간 약 ${Math.ceil(left / 60)}분.`;
+}
 function showProgress(st) {
   const scanning = st.job === 'scan' && ['queued', 'scanning'].includes(st.state);
   if (scanning) {
@@ -296,8 +341,10 @@ function showProgress(st) {
     $('#scanTitle').textContent = S.status.demo ? '예시 녹음을 살펴보고 있어요' : '녹음을 살펴보고 있어요';
     $('#meter').style.width = p.total ? `${p.done / p.total * 100}%` : '4%';
     $('#meterNote').textContent = st.state === 'queued' ? waitingText(st)
-      : p.total && p.done >= p.total ? '다 살펴봤어요. 목소리를 사람별로 나누는 중이에요…'
-        : p.total ? `${p.total}개 중 ${p.done}개 살펴봄` : '살펴볼 준비를 하는 중이에요…';
+      : (p.total && p.done >= p.total ? '다 살펴봤어요. 목소리를 사람별로 나누는 중이에요…'
+        : p.total ? `${p.total}개 중 ${p.done}개 살펴봄.` : '살펴볼 준비를 하는 중이에요…') + remainText(st)
+        + ' 창을 닫았다가 다시 와도 이어서 볼 수 있어요.';
+    setTitle(st.state === 'queued' ? '기다리는 중' : '살펴보는 중');
     const done = new Set(p.names);
     if (S.localFiles.length) {
       $$('#files .frow').forEach((row, i) => {
@@ -315,12 +362,14 @@ function showProgress(st) {
   $('#working').hidden = !searching;
   $('#resultBody').classList.toggle('dim', searching && !!S.result);
   if (searching) {
-    $('#workingText').textContent = st.state === 'queued' ? waitingText(st) : '녹음마다 목소리를 찾고 한 번 더 확인하는 중이에요…';
+    $('#workingText').textContent = st.state === 'queued' ? waitingText(st) : '녹음마다 목소리를 찾고 한 번 더 확인하는 중이에요.' + remainText(st);
+    setTitle(st.state === 'queued' ? '기다리는 중' : '찾는 중');
     if (document.body.dataset.screen !== 'result') { go('result'); if (!S.result) renderResultShell(); }
   }
 }
 async function settle(st) {
   if (st.message) toast(st.message);
+  setTitle(document.hidden && st.state === 'done' ? '✓ 다 찾았어요' : document.hidden && st.state === 'ready' ? '✓ 다 살펴봤어요' : '');
   if (st.state === 'error') {
     if (!st.voices_ready) { $('#meterNote').textContent = st.message || '녹음을 살펴보지 못했어요.'; return; }
   }
@@ -596,14 +645,14 @@ async function boot() {
   $('#fileInput').addEventListener('change', e => { if (e.target.files.length) startUpload(e.target.files); e.target.value = ''; });
   $('#demoBtn').addEventListener('click', startDemo);
   $('#homeBtn').addEventListener('click', () => go('home'));
-  $('#wipeBtn').addEventListener('click', async () => {
-    if (!confirm('올린 녹음과 찾은 결과를 지금 모두 지울까요? 되돌릴 수 없어요.')) return;
-    try { await api('DELETE', ''); } catch (e) { /* 이미 지워졌어도 화면은 처음으로 */ }
-    setSession(null);
-    S.status = S.voices = S.result = null;
-    go('home');
-    toast('올린 녹음과 결과를 모두 지웠어요.');
+  $('#wipeBtn').addEventListener('click', () => {
+    if (confirm('올린 녹음과 찾은 결과를 지금 모두 지울까요? 되돌릴 수 없어요.')) wipeAll();
   });
+  $('#resumeBtn').addEventListener('click', resume);
+  $('#resumeWipe').addEventListener('click', () => {
+    if (confirm('남아 있는 녹음과 결과를 지울까요? 되돌릴 수 없어요.')) wipeAll();
+  });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && document.title.startsWith('✓')) setTitle(''); });
   $$('.tabs button').forEach(b => b.addEventListener('click', () => {
     $$('.tabs button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', x === b); });
     $('#tab-voices').hidden = b.dataset.tab !== 'voices';
@@ -633,7 +682,7 @@ async function boot() {
 
   // 새로 고침해도 하던 곳에서 이어 간다
   let sid = null;
-  try { sid = sessionStorage.getItem('vm_sid'); } catch (e) { /* 없음 */ }
+  try { sid = localStorage.getItem('vm_sid'); } catch (e) { /* 없음 */ }
   if (sid) {
     setSession(sid);
     try {

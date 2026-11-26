@@ -23,6 +23,7 @@ a { color: var(--moss); }
 .top-in { max-width: 1040px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; gap: 20px; }
 .mark { font-family: var(--serif); font-weight: 700; font-size: 19px; letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; cursor: pointer; background: none; border: 0; padding: 0; }
 .mark svg { display: block; }
+a.mark { text-decoration: none; color: inherit; }
 .steps { display: flex; gap: 6px; margin-left: auto; font-size: 14px; color: var(--mute); }
 .steps span { padding: 4px 10px; border-radius: 999px; }
 .steps span.on { color: var(--moss); background: var(--moss-tint); font-weight: 600; }
@@ -80,6 +81,19 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 700; letter-spacing: -.02em
 .safe li { padding: 0 0 10px 22px; position: relative; color: var(--stone); }
 .safe li::before { content: ""; position: absolute; left: 0; top: .72em; width: 8px; height: 8px; border-radius: 2px; background: var(--moss); }
 
+.drop .fine { grid-column: 1 / -1; margin-top: 14px; font-size: 13px; color: var(--mute); }
+.resume { margin-top: 32px; background: var(--moss-tint); border-radius: 14px; padding: 16px 20px; display: flex; gap: 12px 20px; align-items: center; flex-wrap: wrap; font-size: 15px; color: var(--stone); }
+.resume b { color: var(--ink); }
+.resume-acts { margin-left: auto; display: flex; gap: 8px; }
+.doc { max-width: 760px; padding: 48px 0 40px; }
+.doc h1 { font-size: 34px; }
+.doc h2 { font-size: 21px; margin: 36px 0 10px; }
+.doc p, .doc li { color: var(--stone); }
+.doc .upd { color: var(--mute); font-size: 14px; margin-top: 8px; }
+.doc table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin-top: 8px; }
+.doc th, .doc td { text-align: left; vertical-align: top; padding: 10px 10px 10px 0; border-bottom: 1px solid var(--line); }
+.doc th { color: var(--ink); font-weight: 600; }
+.doc td { color: var(--stone); }
 .foot { margin-top: 80px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--mute); font-size: 13px; display: flex; gap: 18px; flex-wrap: wrap; }
 
 /* 살펴보기 */
