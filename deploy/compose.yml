@@ -1,0 +1,27 @@
+# 집 서버(vm2)에서: cd ~/voice-memoir && docker compose -f deploy/compose.yml up -d --build
+# 바깥 공개는 Cloudflare 터널이 127.0.0.1:8600으로 넘겨 준다(포트를 바깥에 열지 않는다).
+services:
+  web:
+    build: ..
+    image: voice-memoir-web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8600:8600"
+    volumes:
+      - ../models:/app/models:ro          # 화자 지문·대상 화자 추출 가중치(저장소에 없음)
+      - ${VM_DEMO_HOST_DIR:-../deploy/demo}:/app/demo:ro
+      - data:/data                        # 세션 폴더(올린 녹음). 마지막으로 쓰고 1시간 뒤, 그리고 재시작할 때 지운다
+    environment:
+      VM_DEMO_DIR: /app/demo/library
+      VM_DEMO_REF: /app/demo/reference.wav
+      VM_THREADS: "4"
+    read_only: true
+    tmpfs:
+      - /tmp:size=2g
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 8g
+    cpus: 4
+    pids_limit: 256
+volumes:
+  data:
