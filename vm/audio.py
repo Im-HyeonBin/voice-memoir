@@ -29,6 +29,12 @@ MEDIA_EXTS = {
 }
 FFMPEG = shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"
 FFPROBE = shutil.which("ffprobe") or "/opt/homebrew/bin/ffprobe"
+# 남이 올린 파일을 여는 온라인 서비스에서만 채운다(web/service.py). 비워 두면 예전과 똑같이 동작한다.
+# 입력 형식과 프로토콜을 녹음 형식과 로컬 파일로만 묶어, 재생목록 같은 파일로 다른 파일을 읽게 하는 일을 막는다.
+INPUT_OPTS: list[str] = []
+SAFE_INPUT_OPTS = ["-protocol_whitelist", "file",
+                   "-format_whitelist", "mov,mp3,wav,ogg,flac,matroska,aac,amr,amrnb,amrwb,avi"]
+TIMEOUT: float | None = None  # ffmpeg·ffprobe 한 번에 줄 최대 시간(초)
 
 DATE_SOURCE_LABEL = {
     "metadata": "녹음 정보",
@@ -40,16 +46,19 @@ DATE_SOURCE_LABEL = {
 
 def decode(path: str | Path, sr: int = SR) -> np.ndarray:
     """파일을 디코딩해 float32 모노 배열로 돌려준다. 영상이면 음성 트랙만 읽는다."""
-    cmd = [FFMPEG, "-nostdin", "-v", "error", "-i", str(path),
+    cmd = [FFMPEG, "-nostdin", "-v", "error", *INPUT_OPTS, "-i", str(path),
            "-vn", "-ac", "1", "-ar", str(sr), "-f", "f32le", "-"]
-    out = subprocess.run(cmd, capture_output=True, check=True).stdout
+    out = subprocess.run(cmd, capture_output=True, check=True, timeout=TIMEOUT).stdout
     return np.frombuffer(out, dtype=np.float32).copy()
 
 
 def probe(path: str | Path) -> dict:
-    cmd = [FFPROBE, "-v", "error", "-print_format", "json",
+    cmd = [FFPROBE, "-v", "error", *INPUT_OPTS, "-print_format", "json",
            "-show_format", "-show_streams", str(path)]
-    res = subprocess.run(cmd, capture_output=True, text=True)
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=TIMEOUT)
+    except subprocess.TimeoutExpired:
+        return {}
     if res.returncode != 0:
         return {}
     return json.loads(res.stdout or "{}")
