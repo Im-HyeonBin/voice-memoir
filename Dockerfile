@@ -17,7 +17,7 @@ COPY web/ web/
 RUN useradd --system --uid 10001 --home /tmp vm && mkdir -p /data && chown vm /data
 USER vm
 
-ENV VM_DATA=/data VM_DEVICE=cpu VM_THREADS=4 VM_SCAN_WORKERS=1 VM_TRUST_PROXY=1 \
+ENV VM_DATA=/data VM_DEVICE=cpu VM_THREADS=3 VM_SCAN_WORKERS=1 VM_TRUST_PROXY=1 \
     HOME=/tmp PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 HF_HUB_OFFLINE=1
 EXPOSE 8600
 HEALTHCHECK --interval=60s --timeout=5s --start-period=60s \

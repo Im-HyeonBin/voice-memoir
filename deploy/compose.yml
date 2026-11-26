@@ -14,14 +14,14 @@ services:
     environment:
       VM_DEMO_DIR: /app/demo/library
       VM_DEMO_REF: /app/demo/reference.wav
-      VM_THREADS: "4"
+      VM_THREADS: "3"
     read_only: true
     tmpfs:
       - /tmp:size=2g
     cap_drop: [ALL]
     security_opt: ["no-new-privileges:true"]
     mem_limit: 8g
-    cpus: 4
+    cpus: 3            # vm2는 CPU 4개. 하나는 다른 서비스 몫으로 남긴다
     pids_limit: 256
 volumes:
   data:
