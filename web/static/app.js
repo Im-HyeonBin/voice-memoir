@@ -67,6 +67,26 @@ async function api(method, path, body, extra = {}) {
   return res.json();
 }
 function apiUrl(path) { return `/api/sessions/${S.sid}${path}`; }
+async function saveFile(url, name, btn) {
+  // 세션 번호가 든 주소가 브라우저 다운로드 기록에 남지 않게, 받아서 임시 주소(blob)로 저장한다
+  if (btn) btn.disabled = true;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new ApiError('파일을 받지 못했어요. 다시 시도해 주세요.', res.status);
+    const href = URL.createObjectURL(await res.blob());
+    const a = document.createElement('a');
+    a.href = href;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(href), 30000);
+  } catch (e) {
+    toast(e.message);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
 
 // ── 파형 ───────────────────────────────────────────────
 function strip(env, colorAt, h, w = 10, bw = 6) {
@@ -494,8 +514,7 @@ function renderResult() {
   $('#working').hidden = true;
   $('#resultBody').classList.remove('dim');
   $('#rTitle').textContent = `${person}의 목소리, ${r.view === 'date' ? '날짜마다' : '해마다'}`;
-  $('#zipBtn').href = apiUrl('/download.zip');
-  $('#zipBtn').setAttribute('aria-disabled', r.total > 0 ? 'false' : 'true');
+  $('#zipBtn').disabled = !(r.total > 0);
   $('#rSum').textContent = r.total > 0
     ? `${r.years}개 해, 녹음 ${r.n_files}개에서 모두 ${mmss(r.total)}를 찾았어요.` : '';
   $$('#viewSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === r.view));
@@ -563,7 +582,7 @@ function renderResult() {
         <div class="hl"><button class="play" aria-label="${esc(g.title)} 목소리 듣기"></button>
           <div class="wave">${strip(g.main.env, () => SOFT, 40)}</div><div class="time">${clock(g.main.seconds)}</div></div>
         <div class="hlnote">
-          <a href="${apiUrl(`/groups/${r.view}/${encodeURIComponent(g.key)}.wav`)}" download="${esc(fname)}">음성 파일 받기</a>
+          <button class="linkbtn dl" data-name="${esc(fname)}">음성 파일 받기</button>
           ${full ? `<button class="linkbtn fullbtn">이 해에 찾은 목소리 전부 듣기 (${mmss(g.full_seconds)})</button>` : ''}
         </div>
         <div class="src">${files}</div>
@@ -578,6 +597,8 @@ function renderResult() {
       const g = r.groups[k];
       const url = apiUrl(`/groups/${r.view}/${encodeURIComponent(g.key)}.wav`);
       bindPlay($('.hl .play', el), $('.hl .wave', el), url, SOFT);
+      const dl = $('.dl', el);
+      dl.addEventListener('click', () => saveFile(url, dl.dataset.name, dl));
       const fb = $('.fullbtn', el);
       if (fb) bindPlay(fb, null, url + '?full=1', SOFT, `이 해에 찾은 목소리 전부 듣기 (${mmss(g.full_seconds)})`);
       $$('.clips .row', el).forEach(row => {
@@ -670,6 +691,10 @@ async function boot() {
   });
   $('#findBtn').addEventListener('click', find);
   $('#backPick').addEventListener('click', () => { go('pick'); renderPick(); });
+  $('#zipBtn').addEventListener('click', e => {
+    const person = (S.result && S.result.person) || '찾는 사람';
+    saveFile(apiUrl('/download.zip'), `${person.replace(/\s+/g, '_')}_목소리_모음.zip`, e.currentTarget);
+  });
   $$('#viewSeg button').forEach(b => b.addEventListener('click', async () => {
     S.view = b.dataset.v;
     try { await loadResult(); } catch (e) { toast(e.message); }

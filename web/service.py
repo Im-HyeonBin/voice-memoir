@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import io
+import math
 import os
 import re
 import secrets
@@ -66,6 +67,9 @@ class Limits:
     ttl_sec: float = 60 * 60                  # 마지막으로 쓴 뒤 이만큼 지나면 지운다
     max_age_sec: float = 3 * 60 * 60          # 쓰고 있어도 이만큼 지나면 지운다
     max_sessions: int = 20
+    max_per_ip: int = 3                       # 한 접속 주소에서 동시에 살아 있는 세션 수
+    creates_per_hour: int = 12                # 한 접속 주소에서 한 시간에 만드는 세션 수
+    empty_ttl_sec: float = 10 * 60            # 녹음을 하나도 올리지 않은 세션은 이만큼 지나면 지운다
     max_queue: int = 6
     max_clip_sec: float = 120.0
 
@@ -88,6 +92,7 @@ class Session:
     dir: Path
     media_dir: Path
     cache_dir: Path
+    ip: str = ""            # 만든 접속 주소(세션 수 제한에만 쓰고 화면·기록에 내보내지 않는다)
     demo: bool = False
     created: float = field(default_factory=time.time)
     touched: float = field(default_factory=time.time)
@@ -178,6 +183,9 @@ class Service:
         self._engine = self._extractor = None
         self.ready = threading.Event()
         self.sessions: dict[str, Session] = {}
+        self.recent: dict[str, deque] = {}   # 접속 주소마다 최근 한 시간 동안 세션을 만든 시각(메모리에만)
+        self.leftovers: list[Path] = []     # 지우다 실패해 다시 지울 폴더
+        self.delete_failures = 0            # 지우기에 실패한 횟수(경로·이름은 남기지 않는다)
         self.queue: deque = deque()
         self.running: str | None = None
         self.cv = threading.Condition()
@@ -201,15 +209,24 @@ class Service:
         return self._extractor
 
     # ── 세션 ───────────────────────────────────────────
-    def create(self) -> Session:
+    def create(self, ip: str = "?") -> Session:
+        lim, now = self.limits, time.time()
         with self.cv:
+            seen = self.recent.setdefault(ip, deque())
+            while seen and now - seen[0] > 3600:
+                seen.popleft()
+            if len(seen) >= lim.creates_per_hour:
+                raise Busy("짧은 시간에 너무 많이 시작했어요. 잠시 뒤에 다시 와 주세요.")
             alive = [s for s in self.sessions.values() if not s.deleted]
-            if len(alive) >= self.limits.max_sessions:
+            if sum(s.ip == ip for s in alive) >= lim.max_per_ip:
+                raise Busy("이미 열어 둔 작업이 많아요. 다른 창의 작업을 지우거나 잠시 뒤에 다시 와 주세요.")
+            if len(alive) >= lim.max_sessions:
                 raise Busy("지금 쓰는 사람이 많아요. 잠시 뒤에 다시 와 주세요.")
+            seen.append(now)
             sid = secrets.token_urlsafe(24)
             root = self.sessions_dir / sid
             (root / "uploads").mkdir(parents=True)
-            s = Session(sid, root, root / "uploads", root / "cache")
+            s = Session(sid, root, root / "uploads", root / "cache", ip=ip)
             self.sessions[sid] = s
             return s
 
@@ -234,8 +251,17 @@ class Service:
         with s.lock:
             s.records = s.clusters = s.target = s.result = s.ref_wav = None
             s.views, s.cache = {}, audio.AudioCache(max_files=1)
-        shutil.rmtree(s.dir, ignore_errors=True)
+        if self._extractor is not None and hasattr(self._extractor, "forget"):
+            self._extractor.forget(str(s.dir))  # 겹친 말 추출 결과도 메모리에서 지운다
+        self._remove_dir(s.dir)
         self.sessions.pop(s.id, None)
+
+    def _remove_dir(self, path: Path) -> None:
+        shutil.rmtree(path, ignore_errors=True)
+        if path.exists():  # 지우지 못했으면 청소 때 다시 지운다
+            self.delete_failures += 1
+            if path not in self.leftovers:
+                self.leftovers.append(path)
 
     def _janitor(self) -> None:
         while not self._stop:
@@ -243,13 +269,27 @@ class Service:
             self.sweep()
 
     def sweep(self, now: float | None = None) -> int:
-        """오래 쓰지 않은 세션을 지운다. 지운 개수를 돌려준다."""
+        """오래 쓰지 않은 세션과 녹음을 올리지 않은 세션을 지우고, 지우다 실패한 폴더와 오래된 접속 주소를 정리한다."""
         now = time.time() if now is None else now
-        old = [s for s in list(self.sessions.values())
-               if not s.deleted and not s.busy and
-               (now - s.touched > self.limits.ttl_sec or now - s.created > self.limits.max_age_sec)]
+        lim = self.limits
+
+        def stale(s: Session) -> bool:
+            if s.deleted or s.busy:
+                return False
+            empty = not s.uploads and not s.demo and s.records is None
+            return (now - s.touched > lim.ttl_sec or now - s.created > lim.max_age_sec
+                    or (empty and now - s.created > lim.empty_ttl_sec))
+
+        old = [s for s in list(self.sessions.values()) if stale(s)]
         for s in old:
             self.delete(s.id)
+        for path in list(self.leftovers):
+            shutil.rmtree(path, ignore_errors=True)
+            if not path.exists():
+                self.leftovers.remove(path)
+        with self.cv:
+            for ip in [ip for ip, q in self.recent.items() if not q or now - q[-1] > 3600]:
+                del self.recent[ip]  # 접속 주소는 한 시간이 지나면 잊는다(개인정보 처리방침)
         return len(old)
 
     # ── 올리기 ─────────────────────────────────────────
@@ -503,6 +543,8 @@ class Service:
         """참고 녹음과 닮았지만 확실하지 않은 목소리를 사람이 정한다. 같은 사람이면 기준을 다시 만들어 찾는다."""
         if s.target is None or s.ref_wav is None:
             raise UserError("참고 녹음으로 찾은 뒤에 쓸 수 있어요.")
+        if int(index) not in {c.index for c in s.clusters or []}:
+            raise UserError("목소리를 찾지 못했어요.")
         with s.lock:
             (s.same if yes else s.not_same).add(int(index))
         if not yes:
@@ -523,7 +565,11 @@ class Service:
             raise UserError("먼저 목소리를 찾아 주세요.")
         if not 0 <= file < len(s.records):
             raise UserError("구간을 찾지 못했어요.")
-        region = (s.records[file].path, round(float(start), 2), round(float(end), 2))
+        start, end = float(start), float(end)
+        if (not (math.isfinite(start) and math.isfinite(end)) or not 0 <= start < end <= s.records[file].duration + 0.05
+                or end - start > self.limits.max_clip_sec):
+            raise UserError("구간을 찾지 못했어요.")
+        region = (s.records[file].path, round(start, 2), round(end, 2))
         with s.lock:
             if answer == "undo":
                 for lst in (s.accepted, s.rejected):
@@ -711,7 +757,8 @@ class Service:
             raise UserError("구간을 찾지 못했어요.")
         r = s.records[file]
         start, end = float(start), float(end)
-        if not (0 <= start < end <= r.duration + 0.05) or end - start > self.limits.max_clip_sec:
+        if (not (math.isfinite(start) and math.isfinite(end)) or not (0 <= start < end <= r.duration + 0.05)
+                or end - start > self.limits.max_clip_sec):
             raise UserError("들을 수 없는 구간이에요.")
         with s.lock:
             return audio.wav_bytes(s.cache.slice(r.path, start, end))
@@ -720,8 +767,15 @@ class Service:
         if s.result is None or not s.result.clips:
             raise UserError("받을 결과가 없어요.")
         person = file_stem(s.person)
+        with s.lock:  # 같은 세션의 zip 요청은 하나씩, 만든 zip은 결과가 바뀔 때까지 다시 쓴다
+            key = ("zip", person)
+            if key not in s.views:
+                s.views[key] = self._build_zip(s, person)
+            return s.views[key]
+
+    def _build_zip(self, s: Session, person: str) -> tuple[str, bytes]:
         buf, rows = io.BytesIO(), []
-        with s.lock, zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
             for y in build_timeline(s.result.clips):
                 label = y.year or "날짜모름"
                 zf.writestr(f"{person}_{label}_올해의목소리.wav",

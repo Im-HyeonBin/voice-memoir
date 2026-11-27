@@ -56,7 +56,6 @@ def drain(svc: Service) -> None:
 def client(tmp_path, demo):
     svc = make_service(tmp_path, demo)
     server.app.state.service = svc
-    server.app.state.limiter.clear()
     with TestClient(server.app) as c:
         c.svc = svc
         yield c
@@ -300,11 +299,17 @@ def test_too_many_sessions_are_refused(tmp_path):
 
 
 def test_session_creation_is_rate_limited(client):
+    """한 접속 주소에서 동시에 3개, 한 시간에 12개까지만 만든다."""
     c = client
-    for _ in range(12):
-        assert c.post("/api/sessions").status_code == 200
+    made = [new_session(c) for _ in range(3)]
     r = c.post("/api/sessions")
-    assert r.status_code == 429 and r.json()["error"]
+    assert r.status_code == 429 and "이미 열어 둔 작업" in r.json()["error"]
+    for _ in range(9):  # 다 쓰고 지우면 다시 만들 수 있지만, 한 시간에 12번까지
+        c.delete(f"/api/sessions/{made.pop()}")
+        made.append(new_session(c))
+    c.delete(f"/api/sessions/{made.pop()}")
+    r = c.post("/api/sessions")
+    assert r.status_code == 429 and "너무 많이" in r.json()["error"]
 
 
 def test_security_headers(client):
@@ -366,10 +371,145 @@ def test_privacy_page_and_ip_forgetting(client):
     page = c.get("/privacy")
     assert page.status_code == 200 and "개인정보 처리방침" in page.text and "1시간" in page.text
     assert "style=" not in page.text and "style=" not in c.get("/").text  # CSP가 막는 인라인 스타일을 쓰지 않는다
-    lim = server.app.state.limiter
-    lim.clear()
+    svc = c.svc
     c.post("/api/sessions")
-    (ip,) = lim
-    lim[ip][-1] -= 3601  # 한 시간 전 기록이 되면
-    c.post("/api/sessions")  # 다음 요청 때 잊는다
-    assert len(lim[ip]) == 1
+    (ip,) = svc.recent
+    svc.recent[ip][-1] -= 3601  # 한 시간 전 기록이 되면
+    svc.sweep()  # 청소 때 잊는다(새 세션을 만들지 않아도)
+    assert ip not in svc.recent
+
+
+# ── 보안 검토 뒤 고친 것 ────────────────────────────────
+def test_review_rejects_out_of_range_regions(client):
+    """'맞아요·아니에요'의 구간도 듣기 구간과 같은 범위만 받는다(긴 구간으로 작업자를 붙잡지 못하게)."""
+    c = client
+    sid = new_session(c)
+    c.post(f"/api/sessions/{sid}/demo")
+    drain(c.svc)
+    c.post(f"/api/sessions/{sid}/demo-reference")
+    drain(c.svc)
+    for start, end in ((0, 1e9), (-1, 2), (3, 2), (0, 500)):
+        body = {"file": 0, "start": start, "end": end, "answer": "no"}
+        r = c.post(f"/api/sessions/{sid}/review", json=body)
+        assert r.status_code == 400, (start, end, r.text)
+    r = c.post(f"/api/sessions/{sid}/review", content='{"file":0,"start":0,"end":Infinity,"answer":"no"}',
+               headers={"content-type": "application/json"})
+    assert r.status_code in (400, 422), r.text
+    assert not c.svc.queue
+    assert c.post(f"/api/sessions/{sid}/review", json={"file": 0, "start": 1, "end": 2, "answer": "no"}).status_code == 200
+    assert c.post(f"/api/sessions/{sid}/same", json={"index": 999, "yes": True}).status_code == 400
+
+
+def test_empty_sessions_are_swept_sooner(tmp_path):
+    svc = make_service(tmp_path, empty_ttl_sec=600)
+    empty, used = svc.create(), svc.create()
+    data = wav_bytes(("me", 1))
+    u = svc.start_upload(used, "a.wav", len(data))
+    svc.write_chunk(used, u.id, 0, data)
+    empty.created -= 601
+    used.created -= 601
+    assert svc.sweep() == 1
+    assert empty.id not in svc.sessions and used.id in svc.sessions
+
+
+def test_failed_delete_is_retried(tmp_path, monkeypatch):
+    import web.service as service_mod
+    svc = make_service(tmp_path)
+    s = svc.create()
+    real = service_mod.shutil.rmtree
+    monkeypatch.setattr(service_mod.shutil, "rmtree", lambda *a, **k: None)  # 지우기 실패
+    svc.delete(s.id)
+    assert s.dir.exists() and svc.leftovers == [s.dir] and svc.delete_failures == 1
+    monkeypatch.setattr(service_mod.shutil, "rmtree", real)
+    svc.sweep()
+    assert not s.dir.exists() and svc.leftovers == []
+
+
+def test_purge_forgets_extracted_audio(tmp_path):
+    class Ex:
+        def __init__(self):
+            self.forgot = []
+
+        def forget(self, prefix):
+            self.forgot.append(prefix)
+
+    svc = make_service(tmp_path)
+    svc._engine, svc._extractor = FakeEngine(), Ex()
+    s = svc.create()
+    svc.delete(s.id)
+    assert svc._extractor.forgot == [str(s.dir)]
+
+
+def test_extractor_forget_drops_only_that_session():
+    from collections import OrderedDict
+    from vm.tse import Extractor
+    ex = Extractor.__new__(Extractor)
+    ex._cache = OrderedDict({(("/data/sessions/A/uploads/x/a.wav", 0, 4), 1, (1, 0.0)): 1,
+                             (("/data/sessions/B/uploads/y/b.wav", 0, 4), 1, (1, 0.0)): 2})
+    assert ex.forget("/data/sessions/A") == 1
+    assert [k[0][0] for k in ex._cache] == ["/data/sessions/B/uploads/y/b.wav"]
+
+
+def test_decoding_is_capped(tmp_path, monkeypatch):
+    """길이 정보를 속인 파일이라도 정한 길이 이상은 풀지 않는다."""
+    f = tmp_path / "long.wav"
+    audio.write_wav(f, compose(("me", 6)))
+    monkeypatch.setattr(audio, "MAX_SEC", 2)
+    assert len(audio.decode(f)) <= 2 * audio.SR + 10
+
+
+def test_zip_is_built_once_per_result(client):
+    c = client
+    sid = new_session(c)
+    c.post(f"/api/sessions/{sid}/demo")
+    drain(c.svc)
+    c.post(f"/api/sessions/{sid}/demo-reference")
+    drain(c.svc)
+    s = c.svc.sessions[sid]
+    first = c.svc.zip_bytes(s)
+    assert c.svc.zip_bytes(s) is first  # 같은 결과면 다시 만들지 않는다
+    c.post(f"/api/sessions/{sid}/settings", json={"level": 4})
+    drain(c.svc)
+    assert c.svc.zip_bytes(s) is not first  # 결과가 바뀌면 새로 만든다
+
+
+def test_http_is_sent_to_https_with_hsts(client, monkeypatch):
+    c = client
+    monkeypatch.setenv("VM_TRUST_PROXY", "1")
+    r = c.get("/privacy?x=1", headers={"cf-visitor": '{"scheme":"http"}'}, follow_redirects=False)
+    assert r.status_code == 308 and r.headers["location"] == "https://testserver/privacy?x=1"
+    r = c.get("/", headers={"cf-visitor": '{"scheme":"https"}'})
+    assert r.status_code == 200 and r.headers["strict-transport-security"].startswith("max-age=")
+    monkeypatch.delenv("VM_TRUST_PROXY")
+    assert "strict-transport-security" not in c.get("/").headers  # 로컬 실행에서는 넘기지 않는다
+
+
+def test_static_files_are_versioned(client):
+    page = client.get("/").text
+    assert "/static/app.js?v=" in page and "/static/app.css?v=" in page
+    assert "/static/app.css?v=" in client.get("/privacy").text
+
+
+def test_downloads_do_not_put_session_in_links(client):
+    """세션 번호가 든 주소를 링크로 걸지 않아 다운로드 기록에 남지 않는다."""
+    js = client.get("/static/app.js").text
+    assert "download=\"" not in js and ".href = apiUrl" not in js and "createObjectURL" in js
+
+
+def test_service_files_are_private(tmp_path, monkeypatch):
+    import os
+    from web import server as srv
+    monkeypatch.setenv("VM_DATA", str(tmp_path / "data"))
+    for name in ("INPUT_OPTS", "TIMEOUT", "MAX_SEC"):
+        monkeypatch.setattr(audio, name, getattr(audio, name))
+    before = os.umask(0o022)
+    try:
+        svc = srv.build_service(engine_factory=FakeEngine, start=False)
+        s = svc.create()
+        data = wav_bytes(("me", 1))
+        u = svc.start_upload(s, "a.wav", len(data))
+        assert (s.dir.stat().st_mode & 0o777) == 0o700
+        assert (u.path.stat().st_mode & 0o777) == 0o600
+        assert audio.MAX_SEC == svc.limits.max_audio_sec + 60
+    finally:
+        os.umask(before)

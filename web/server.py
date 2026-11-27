@@ -8,15 +8,16 @@
 - VM_THREADS: torch가 쓸 CPU 스레드 수
 - VM_OVERLAP: 1이면 겹쳐 말한 구간도 찾는다(기본 1, 가중치가 없으면 꺼짐)
 - VM_DEMO_DIR, VM_DEMO_REF: 예시 녹음 폴더와 예시 참고 녹음
-- VM_TRUST_PROXY: 1이면 Cloudflare가 붙여 주는 CF-Connecting-IP로 사람을 구분한다
+- VM_TRUST_PROXY: 1이면 Cloudflare 뒤에 있는 것으로 보고, CF-Connecting-IP로 사람을 구분하며
+  http로 들어온 요청은 https로 넘긴다
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 import sys
 import tempfile
-import time
-from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 from pathlib import Path
 from urllib.parse import quote
@@ -25,7 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from fastapi import FastAPI, Request  # noqa: E402
-from fastapi.responses import FileResponse, JSONResponse, Response  # noqa: E402
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 from pydantic import BaseModel, Field  # noqa: E402
 
@@ -33,6 +34,7 @@ from vm import audio  # noqa: E402
 from web.service import Busy, Gone, Service, UserError  # noqa: E402
 
 STATIC = Path(__file__).resolve().parent / "static"
+HSTS = "max-age=15552000"  # 180일. 다른 하위 주소에는 걸지 않는다(includeSubDomains 없음)
 CSP = ("default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; "
        "media-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
 
@@ -69,6 +71,7 @@ def _devices() -> list[str] | None:
 
 
 def build_service(**kw) -> Service:
+    os.umask(0o077)  # 세션 폴더와 올린 파일을 이 프로세스 사용자만 읽게 만든다
     audio.INPUT_OPTS = audio.SAFE_INPUT_OPTS
     audio.TIMEOUT = 300
     data = Path(os.environ.get("VM_DATA", ROOT / ".webdata"))
@@ -77,7 +80,9 @@ def build_service(**kw) -> Service:
     demo_ref = os.environ.get("VM_DEMO_REF", str(ROOT / "deploy" / "demo" / "reference.wav"))
     opts = dict(demo_dir=demo_dir, demo_ref=demo_ref, extractor_factory=_extractor_factory, devices=_devices())
     opts.update(kw)
-    return Service(data, opts.pop("engine_factory", _engine_factory), **opts)
+    service = Service(data, opts.pop("engine_factory", _engine_factory), **opts)
+    audio.MAX_SEC = service.limits.max_audio_sec + 60  # 길이 정보를 속인 파일도 이 이상은 풀지 않는다
+    return service
 
 
 @asynccontextmanager
@@ -90,17 +95,38 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
 app.state.service = None
-app.state.limiter = defaultdict(deque)  # 사람마다 최근 세션을 만든 시각
 
 
 def svc(request: Request) -> Service:
     return request.app.state.service
 
 
+def behind_proxy() -> bool:
+    return os.environ.get("VM_TRUST_PROXY") == "1"
+
+
+def came_over_http(request: Request) -> bool:
+    """Cloudflare가 붙여 주는 헤더로 방문자가 http로 들어왔는지 본다."""
+    visitor = request.headers.get("cf-visitor")
+    if visitor:
+        try:
+            return json.loads(visitor).get("scheme") == "http"
+        except ValueError:
+            return False
+    return request.headers.get("x-forwarded-proto") == "http"
+
+
 @app.middleware("http")
 async def headers(request: Request, call_next):
-    response = await call_next(request)
+    if behind_proxy() and came_over_http(request):
+        # 암호화되지 않은 연결로 녹음·세션 번호가 오가지 않게 https로 넘긴다(같은 주소, 같은 경로)
+        url = request.url.replace(scheme="https", port=None)
+        response = RedirectResponse(str(url), status_code=308)
+    else:
+        response = await call_next(request)
     h = response.headers
+    if behind_proxy():
+        h["Strict-Transport-Security"] = HSTS
     h["Content-Security-Policy"] = CSP
     h["X-Content-Type-Options"] = "nosniff"
     h["Referrer-Policy"] = "no-referrer"
@@ -131,14 +157,29 @@ def wav(data: bytes) -> Response:
 
 
 # ── 화면 ────────────────────────────────────────────────
+def _version(name: str) -> str:
+    return hashlib.sha256((STATIC / name).read_bytes()).hexdigest()[:10]
+
+
+def render(page: str) -> str:
+    """화면 파일 주소에 내용 해시를 붙인다. Cloudflare가 정적 파일을 4시간 캐시해도 고친 파일이 바로 내려간다."""
+    html = (STATIC / page).read_text()
+    for name in ("app.css", "app.js"):
+        html = html.replace(f"/static/{name}\"", f"/static/{name}?v={_version(name)}\"")
+    return html
+
+
+PAGES = {name: render(name) for name in ("index.html", "privacy.html")}
+
+
 @app.get("/", include_in_schema=False)
 def index():
-    return FileResponse(STATIC / "index.html")
+    return HTMLResponse(PAGES["index.html"])
 
 
 @app.get("/privacy", include_in_schema=False)
 def privacy():
-    return FileResponse(STATIC / "privacy.html")
+    return HTMLResponse(PAGES["privacy.html"])
 
 
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
@@ -166,17 +207,8 @@ def health(request: Request):
 # ── 세션 ────────────────────────────────────────────────
 @app.post("/api/sessions")
 def create_session(request: Request):
-    ip, now = client_ip(request), time.time()
-    limiter = request.app.state.limiter
-    for key in [k for k, q in limiter.items() if not q or now - q[-1] > 3600]:
-        del limiter[key]  # 접속 주소는 메모리에만 1시간 두고 잊는다(개인정보 처리방침)
-    seen = limiter[ip]
-    while seen and now - seen[0] > 3600:
-        seen.popleft()
-    if len(seen) >= 12:
-        raise Busy("짧은 시간에 너무 많이 시작했어요. 잠시 뒤에 다시 와 주세요.")
-    seen.append(now)
-    s = svc(request).create()
+    # 접속 주소마다 동시 세션 수와 시간당 횟수를 묶는다(web/service.py Service.create)
+    s = svc(request).create(client_ip(request))
     return {"id": s.id, "limits": limits_json(svc(request))}
 
 
