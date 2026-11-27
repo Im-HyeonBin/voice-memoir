@@ -35,6 +35,7 @@ INPUT_OPTS: list[str] = []
 SAFE_INPUT_OPTS = ["-protocol_whitelist", "file",
                    "-format_whitelist", "mov,mp3,wav,ogg,flac,matroska,aac,amr,amrnb,amrwb,avi"]
 TIMEOUT: float | None = None  # ffmpeg·ffprobe 한 번에 줄 최대 시간(초)
+MAX_SEC: float | None = None  # 한 파일을 풀 때 최대 길이(초). 길이 정보를 속인 파일이 메모리를 채우지 못하게 한다
 
 DATE_SOURCE_LABEL = {
     "metadata": "녹음 정보",
@@ -46,7 +47,8 @@ DATE_SOURCE_LABEL = {
 
 def decode(path: str | Path, sr: int = SR) -> np.ndarray:
     """파일을 디코딩해 float32 모노 배열로 돌려준다. 영상이면 음성 트랙만 읽는다."""
-    cmd = [FFMPEG, "-nostdin", "-v", "error", *INPUT_OPTS, "-i", str(path),
+    limit = ["-t", f"{MAX_SEC:.0f}"] if MAX_SEC else []
+    cmd = [FFMPEG, "-nostdin", "-v", "error", *INPUT_OPTS, "-i", str(path), *limit,
            "-vn", "-ac", "1", "-ar", str(sr), "-f", "f32le", "-"]
     out = subprocess.run(cmd, capture_output=True, check=True, timeout=TIMEOUT).stdout
     return np.frombuffer(out, dtype=np.float32).copy()

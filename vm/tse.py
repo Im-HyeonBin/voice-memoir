@@ -157,6 +157,13 @@ class Extractor:
     def _fingerprint(enroll: np.ndarray) -> tuple:
         return (len(enroll), round(float(enroll[::97].sum()), 4))
 
+    def forget(self, prefix: str) -> int:
+        """prefix로 시작하는 녹음에서 뽑은 결과를 지운다(온라인 서비스에서 세션을 지울 때). 지운 개수를 돌려준다."""
+        gone = [k for k in self._cache if isinstance(k[0], tuple) and str(k[0][0]).startswith(prefix)]
+        for k in gone:
+            del self._cache[k]
+        return len(gone)
+
     def __call__(self, mix: np.ndarray, enroll: np.ndarray, key: tuple | None = None) -> np.ndarray:
         if key is not None:
             key = (key, len(mix), self._fingerprint(enroll))
