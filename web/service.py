@@ -111,6 +111,7 @@ class Session:
     notice: str = ""
     started: float = 0.0    # 지금 작업을 시작한 시각
     estimate: float = 0.0   # 지금 작업에 걸릴 것으로 보는 시간(초)
+    hint: str = ""          # 줄에 선 찾기가 참고 녹음으로 찾는 것인지(어림에 쓴다)
     deleted: bool = False
     lock: threading.RLock = field(default_factory=threading.RLock)
     cache: audio.AudioCache = field(default_factory=lambda: audio.AudioCache(max_files=6))
@@ -167,10 +168,12 @@ class Service:
         self.demo_cache = self.data_dir / "demo_cache"
         self.engine_factory, self.extractor_factory = engine_factory, extractor_factory
         self.devices = devices
-        # 걸리는 시간 어림(서버 CPU 3개에서 잰 값, tools/measure_web.py). 화면에 '남은 시간'으로 보여 준다
-        self.rates = {"scan": float(os.environ.get("VM_SCAN_RATE", 4.0)),      # 녹음 초 / 걸린 초
-                      "search": float(os.environ.get("VM_SEARCH_RATE", 6.0)),  # 말소리 초 / 걸린 초
-                      "overhead": 5.0}
+        # 걸리는 시간 어림. 화면에 '남은 시간'으로 보여 준다. 서버(vm2 CPU 3개)에서 녹음 28분·말소리 18분으로
+        # 잰 값(tools/measure_web.py): 살펴보기 200초, 고른 목소리로 찾기 144초, 참고 녹음으로 찾기 316초
+        self.rates = {"scan": float(os.environ.get("VM_SCAN_RATE", 8.5)),          # 녹음 초 / 걸린 초
+                      "pick": float(os.environ.get("VM_SEARCH_RATE", 7.5)),        # 말소리 초 / 걸린 초
+                      "reference": float(os.environ.get("VM_REF_RATE", 3.4)),
+                      "overhead": 10.0}
         self._demo_seconds: float | None = None
         self._engine = self._extractor = None
         self.ready = threading.Event()
@@ -389,7 +392,8 @@ class Service:
             sec = self.demo_seconds() if s.demo else sum(u.seconds for u in s.uploads.values() if u.done)
             return r["overhead"] + sec / r["scan"]
         speech = sum(rec.speech_seconds for rec in s.records or [])
-        return r["overhead"] + speech / r["search"]
+        ref = s.hint == "reference" or (not s.hint and s.target is not None and s.target.source == "참고 녹음")
+        return r["overhead"] + speech / r["reference" if ref else "pick"]
 
     def run_job(self, s: Session, kind: str, fn: Callable[[Session], None]) -> None:
         s.state = "scanning" if kind == "scan" else "searching"
@@ -398,6 +402,7 @@ class Service:
             s.estimate = self.estimate(s, kind)
         except Exception:  # 어림을 못 해도 작업은 한다
             s.estimate = 0.0
+        s.hint = ""
         try:
             fn(s)
             s.state = "ready" if kind == "scan" else "done"
@@ -461,6 +466,7 @@ class Service:
                 s.target = t
             self._search(s)
 
+        s.hint = "pick"
         self.submit(s, "search", job)
 
     def reference(self, s: Session, path: Path) -> None:
@@ -485,6 +491,7 @@ class Service:
                     s.notice = "참고 녹음에 다른 목소리도 섞여 있어서, 가장 많이 말한 사람을 기준으로 삼았어요."
             self._search(s)
 
+        s.hint = "reference"
         self.submit(s, "search", job)
 
     def demo_reference(self, s: Session) -> None:
