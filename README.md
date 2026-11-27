@@ -102,7 +102,7 @@ flowchart TD
 
 ```bash
 git clone https://github.com/Im-HyeonBin/voice-memoir && cd voice-memoir
-python3.13 -m venv .venv && .venv/bin/pip install -r requirements.txt
+python3.13 -m venv .venv && .venv/bin/pip install -r requirements.txt -c web/requirements.txt
 .venv/bin/streamlit run app.py          # 화면 (http://localhost:8501)
 ```
 

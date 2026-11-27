@@ -1,7 +1,10 @@
-torch==2.12.1
-torchaudio==2.11.0
+# 판은 온라인 서비스 컨테이너와 같게 web/requirements.txt를 함께 따른다:
+#   pip install -r requirements.txt -c web/requirements.txt
+# (Dependabot이 web/requirements.txt를 올리면 GitHub 시험도 그 판으로 돈다)
+torch
+torchaudio
 speechbrain==1.1.0
-silero-vad==6.2.1
+silero-vad
 streamlit==1.59.0
 faster-whisper==1.2.1
 soundfile
@@ -9,6 +12,6 @@ scikit-learn
 numpy
 huggingface_hub
 PyYAML
-fastapi==0.165.0
-uvicorn==0.54.0
-python-multipart==0.0.32
+fastapi
+uvicorn
+python-multipart

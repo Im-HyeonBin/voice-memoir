@@ -18,7 +18,7 @@ jobs:
       - name: ffmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: 설치(CPU용 torch)
-        run: pip install -r requirements.txt -r requirements-dev.txt --extra-index-url https://download.pytorch.org/whl/cpu
+        run: pip install -r requirements.txt -r requirements-dev.txt -c web/requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
       - name: 코드 점검
         run: ruff check --select F,E9 app.py cli.py visual.py vm tools tests web
       - name: 시험
