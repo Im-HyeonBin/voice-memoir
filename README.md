@@ -2,11 +2,15 @@
 
 [![tests](https://github.com/Im-HyeonBin/voice-memoir/actions/workflows/tests.yml/badge.svg)](https://github.com/Im-HyeonBin/voice-memoir/actions/workflows/tests.yml)
 
-흩어진 녹음(가족 영상·통화 녹음·음성 메모)에서 한 사람의 목소리만 찾아 해마다 모아 주는 로컬 앱.
+흩어진 녹음(가족 영상·통화 녹음·음성 메모)에서 한 사람의 목소리만 찾아 해마다 모아 주는 서비스.
 돌아가셨거나 투병 중이라 새로 녹음할 수 없는 부모님의 목소리를, 이미 가진 녹음에서 되찾는 상황을 겨냥했다.
-분석은 모두 이 컴퓨터 안에서 하고, 녹음은 밖으로 보내지 않는다.
 
-![폴더를 불러와 목소리를 고르고 해마다 찾은 결과를 보는 장면](docs/demo.gif)
+**바로 써 보기: https://voice.lab-it.net** ('예시 녹음으로 해 보기'는 공개 음성으로 만든 합성 녹음을 쓴다)
+
+- 웹 서비스: 녹음을 올리면 집 서버에서 분석하고, 마지막으로 쓰고 1시간 뒤 모두 지운다([개인정보 처리방침](https://voice.lab-it.net/privacy)). 아래 '온라인 서비스'
+- 로컬 앱: 분석을 모두 내 컴퓨터 안에서 하고 녹음을 밖으로 보내지 않는다. 아래 '실행'
+
+![예시 녹음으로 목소리를 고르고 해마다 찾은 결과를 보는 장면](docs/web_demo.gif)
 
 ## 한눈에
 
@@ -77,7 +81,13 @@ flowchart TD
 
 ## 화면
 
-어려운 시험 세트(9개 녹음, 2016~2025년)를 불러와 목소리를 고르고 찾은 모습. 파형에서 초록은 찾는 사람, 회색은 다른 사람이다.
+웹 서비스에서 예시 녹음으로 찾은 모습. 파형에서 초록은 찾는 사람, 회색은 다른 사람이다.
+
+| 목소리 고르기 | 해마다 찾은 목소리 | 휴대폰 |
+|---|---|---|
+| ![목소리 고르기](docs/screenshots/web_1_pick.png) | ![해마다](docs/screenshots/web_2_result.png) | ![휴대폰](docs/screenshots/web_3_mobile.png) |
+
+로컬 앱(Streamlit)에서 어려운 시험 세트(9개 녹음, 2016~2025년)를 불러와 찾은 모습.
 
 | 폴더 불러오기와 목소리 고르기 | 해마다 찾은 목소리와 확인 목록 |
 |---|---|
@@ -85,7 +95,8 @@ flowchart TD
 
 ![구간 목록](docs/screenshots/3_download_list.png)
 
-화면과 맨 위 장면은 `tools/screenshots.py`, `tools/demo_gif.py`가 헤드리스 크롬으로 실제 앱을 눌러 가며 찍었다.
+화면과 맨 위 장면은 `tools/web_screenshots.py`(웹 서비스), `tools/screenshots.py`·`tools/demo_gif.py`(로컬 앱)가 헤드리스 크롬으로 실제 화면을 눌러 가며 찍었다.
+로컬 앱의 사용 장면은 [docs/demo.gif](docs/demo.gif)에 있다.
 
 ## 실행
 
@@ -120,8 +131,9 @@ VM_MODEL=ecapa_ko .venv/bin/streamlit run app.py
 
 ## 온라인 서비스
 
-브라우저에서 녹음을 올려 쓰는 웹 서비스(`web/`)도 있다. 서버는 FastAPI, 화면은 프레임워크 없이 직접 쓴
-HTML·CSS·JavaScript이고, 분석은 위 화면과 같은 `vm/` 코드를 쓴다.
+브라우저에서 녹음을 올려 쓰는 웹 서비스(`web/`)를 https://voice.lab-it.net 에 공개해 두었다. 서버는 FastAPI,
+화면은 프레임워크 없이 직접 쓴 HTML·CSS·JavaScript이고, 분석은 로컬 앱과 같은 `vm/` 코드를 쓴다.
+집 서버(Proxmox 가상 머신, CPU 3개)의 컨테이너에서 돌고 Cloudflare 터널로만 바깥과 이어진다.
 
 ```bash
 .venv/bin/uvicorn web.server:app --port 8600     # http://localhost:8600
@@ -146,8 +158,9 @@ HTML·CSS·JavaScript이고, 분석은 위 화면과 같은 `vm/` 코드를 쓴�
 합성 녹음 5개다(`tools/make_public_demo.py` → `deploy/demo/`). 찾을 사람과 가장 닮은 화자를 일부러 '삼촌'으로 넣었다.
 정답과 맞춰 보면 참고 녹음 7초로도, 목소리 카드 하나를 골라도 찾을 사람 말소리의 94%를 찾고 다른 사람은 담지 않았다.
 
-CPU로만 돌리면(맥 CPU 4스레드) 3분 30초 분량 녹음을 살펴보는 데 약 20초, 목소리를 나누는 데 약 30초,
-겹쳐 말한 구간까지 찾는 데 약 20초 걸렸다. 녹음 길이 합을 30분으로 묶은 까닭이다.
+서버(CPU 3개)에서 녹음 28분(말소리 18분, 10개 파일)을 올려 재 보니 살펴보기 3분 20초, 고른 목소리로 찾기 2분 24초,
+참고 녹음으로 찾기 5분 16초, 가장 많이 쓴 메모리 1GB 이하였다(`tools/measure_web.py`). 녹음 길이 합을 30분으로 묶어
+가장 오래 기다리는 경우가 10분 안쪽이 되게 했고, 화면에는 이 값으로 어림한 남은 시간을 보여 준다.
 
 ## 자동 시험
 
