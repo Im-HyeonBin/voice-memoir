@@ -2,7 +2,7 @@
 # 같은 판으로 맥 개발 환경(.venv)과 GitHub Actions에서 시험했다.
 torch==2.12.1
 torchaudio==2.11.1
-silero-vad==6.2.1
+silero-vad==6.3
 soundfile==0.14.0
 scikit-learn==1.9.1
 scipy==1.18.1
