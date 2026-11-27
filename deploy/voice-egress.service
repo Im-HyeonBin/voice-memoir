@@ -1,0 +1,12 @@
+[Unit]
+Description=목소리 발굴 컨테이너에서 나가는 연결 막기
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/voice-egress.sh
+
+[Install]
+WantedBy=multi-user.target

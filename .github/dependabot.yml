@@ -1,0 +1,13 @@
+# 온라인 서비스가 쓰는 패키지·기반 이미지·GitHub Actions의 새 판을 매주 알려 준다(보안 수정 포함)
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /web
+    schedule: {interval: weekly}
+    open-pull-requests-limit: 5
+  - package-ecosystem: docker
+    directory: /
+    schedule: {interval: weekly}
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: {interval: weekly}
